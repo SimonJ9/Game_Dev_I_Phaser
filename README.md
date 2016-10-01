@@ -7,7 +7,7 @@
 # Brittany Wendzel
 # Hantian Jiang (Simon)
 
-# Project Prompt: "...and that's what happens when you don't have reliable WiFi"
+Project Prompt: "...and that's what happens when you don't have reliable WiFi"
 
 Phaser lib version: 2.6.2
 
