@@ -1,54 +1,284 @@
+<!doctype html>
 <html>
 
-<title>Enter Game Name Here</title>
 <head>
-
+    <title>Enter Game Name Here</title>
+    <!--Phaser library version: 2.6.2-->
+    <script src="lib/phaser.min.js"></script>
 </head>
 
 <body>
 
-<!--Phaser library version: 2.6.2-->
-<script src = "lib/phaser.min.js"></script>
-<script type = "text/javascript">
-<!--Game code goes here-->
 
-var game = new Phaser.Game(1334, 750, Phaser.AUTO, "Game", { preload: preload, create: create, update: update});
+    <script type="text/javascript">
+//<!--Game code goes here-->
 
-function preload(){
-<!--This function loaded before the game starts-->
-	game.load.image("sprite_test", "Assets_Playable/test_sprite.png");
-	
-}
+// load before the game
+function preload()
+{
+    game.load.spritesheet("test_dude", "assets/placeholder/dude.png", 32, 48);
+    game.load.image("test_ground", "assets/placeholder/ground.png");
 
-function create() {
-	
-	game.physics.startSystem(Phaser.Physics.ARCADE);
-	
-	game.stage.backgroundColor = "#FFFFFF";
-	
-	var _sprite = game.add.sprite(0, 0, "sprite_test");
-	
-	
-	game.physics.enable(_sprite, Phaser.Physics.ARCADE);
-	_sprite.inputEnabled = true;
-	_sprite.input.enableDrag(true);
-	
-	_sprite.body.collideWorldBounds = true;
-	_sprite.body.gravity.set(0, 200);
-	
-	
-	
 
 }
 
-function update() {
-<!--This function is loaded every frame-->
+// so what I'm going to try to make is a class for mouse clicks
+var Click = function (startX, startY, startT) {
+    this.startX = startX;
+    this.startY = startY;
+    this.startT = startT;
+
+    // not sure what to set these to originally
+    this.endX = -1;
+    this.endY = -1;
+    this.endT = -1;
+
+    this.type = null;
+};
+
+Click.prototype.endClick = function (upX, upY, upTime) {
+    this.endX = upX;
+    this.endY = upY;
+    this.endT = upTime;
+    this.classifyClick();    // DO SOME LOGIC to determine what type of click it is
+};
+
+Click.prototype.classifyClick = function () {
+    if( this.endX === -1 || this.endY === -1 || this.endT === -1 )     // for safety
+    {
+        console.log("In the middle of a click...");
+    }
+
+    var diffX = this.endX - this.startX;
+    var diffY = this.endY - this.startY;
+    var distance_traveled = Math.sqrt((diffX) * (diffX) + (diffY) * (diffY));
+
+    // now, to start classifying the click type
+    if ( (this.endT - this.startT) <= 250 && distance_traveled <= 50 )      // DETECT TAP
+    {
+        this.type = "tap";
+        console.log("Tap!");
+    }
+    else if( (this.endT - this.startT) >= 1000 )                            // DETECT HOLD
+    {
+        this.type = "hold";
+        console.log("Hold!");
+    }
+    else if( distance_traveled >= 50 )                                      // DETECT SWIPE
+    {
+        /*  FEATURE
+         *  Detects difference between swipe left and swipe right,
+         *      Player can shoot cables horizontally in both directions
+         *  Detects difference between swipe up and swipe down
+         *      Player can cast lightning with swipe down, and some sort of other spell with swipe up?
+         *
+         *
+         */
+        var abs_diffX = diffX;
+        if (abs_diffX < 0) abs_diffX *= -1;
+        var abs_diffY = diffY;
+        if (abs_diffY < 0) abs_diffY *= -1;
+
+        // FOR NOW, JUST GOING TO DETERMINE IF IT WAS VERTICAL OR HORIZONTAL
+
+        var slope = abs_diffY / abs_diffX;      // the ratio between the difference in X and the difference in Y
+        /* console.log(diffX);
+        console.log(diffY);
+        console.log(slope); */
+
+        if( slope > 1 || diffX === 0 )          // vertical swipe
+        {
+            if( diffY > 0 )
+            {
+                this.type = "swipe down";
+                console.log("Swipe down!");
+            }
+            else
+            {
+                this.type = "swipe up";
+                console.log("Swipe up!");
+            }
+
+            /* this.type = "vertical swipe";
+            console.log("Vertical swipe!"); */
+        }
+        else if( slope < 1 || diffY === 0 )     // horizontal swipe
+        {
+            if ( diffX > 0 )
+            {
+                this.type = "swipe right";
+                console.log("Swipe right!");
+            }
+            else
+            {
+                this.type = "swipe left";
+                console.log("Swipe left!");
+            }
+
+            /* this.type = "horizontal swipe";
+            console.log("Horizontal swipe!"); */
+        }
+        else
+        {
+            console.log("Wow... The Chosen Swipe");
+        }
+
+    }
+    else
+    {
+        console.log("Wow that was a really shitty click if I do say so myself.");
+    }
+};
+
+var current_click = null;       // this is the player's current click. is null when not clicking
+
+var game = new Phaser.Game(1334, 750, Phaser.AUTO, "[INSERT GAME NAME HERE]", { preload: preload, create: create, update: update});
+var player;
+var platforms;
+
+var platform_scrolling_speed = 300;
+var player_can_jump = false;
+
+
+
+
+
+
+
+// upon creation of the game
+function create()
+{
+    var i = 0; // this is the loop counter;
+    game.physics.startSystem(Phaser.Physics.ARCADE);
+
+    game.input.mouse.capture = true;    // track the mouse
+    game.time.advancedTiming = true;    // allow an fps counter without my having to make one
+
+    platforms = game.add.group();
+    platforms.enableBody = true;
+
+    var test_ground = platforms.create(0, game.world.height - 64, "test_ground");
+    var test_ground2 = platforms.create(game.world.width / 2.0, game.world.height - 256, "test_ground");
+
+    /*  This loop sets up the platforms. It both sets them to immovable and makes them scroll   */
+    for (i; i < platforms.children.length; i++)
+    {
+        platforms.children[i].body.immovable = true;
+        platforms.children[i].body.velocity.x = -platform_scrolling_speed;  // setting it's velocity here means it will just always move...
+    }
+
+
+    // player
+    player = game.add.sprite(20, test_ground.y - test_ground.height - 48, "test_dude");
+    game.physics.arcade.enable(player);
+    player.body.gravity.y = 400;
+    player.body.bounce.y = .1;
+    player.body.collodeWorldBounds = true;  // although honestly the player should never move horizontally ANYway
+
+    player.animations.add("run", [5, 6, 7, 8], 10, true);
+    player.animations.play("run");
+
 
 }
 
-</script>
+function update()
+{
+    //<!--This function is loaded every frame-->
+
+    // collide the player with the platforms
+    if (game.physics.arcade.collide(player, platforms))         // if they are colliding, the player will stand still and slide along with the platforms!
+    {
+        player.body.velocity.x = platform_scrolling_speed;
+        player_can_jump = true;
+    }
+    else
+    {
+        player.body.velocity.x = 0;
+        player_can_jump = false;
+    }
 
 
+
+    /*  We will have to do lots of input mouse detection...
+     *  I already wrote a click class. I'm thinking there's a global variable called "current_click."
+     *  Whenever there is mouseDown, current_click is initialized by the click's X, Y, and time of the click
+     *  Whenever there is a release, current_click.endClick( upX, upY, upTime ) is called
+     *      Then the click itself determines what type of click it was with click.classifyClick()
+     *      and THEN we do whatever we should do whatever response we should do
+     *
+     *  Ok I did this already! -Fuller <3
+     */
+
+    if( game.input.activePointer.leftButton.isDown )        // if clicking
+    {
+        if( !current_click )       // if current_click === null
+        {
+            var time = game.time.now;
+            var mouseX = game.input.mousePointer.x;
+            var mouseY = game.input.mousePointer.y;
+            current_click = new Click(mouseX, mouseY, time);
+        }
+        else                        // current click exists
+        {
+            if( game.time.now - current_click.startT >= 500 )
+            {
+                // start doing charge animation for the player to use a bomb
+                console.log("charging bomb...");
+            }
+        }
+    }
+    else
+    {
+        if( current_click )     // if current_click !== null
+        {
+            var time = game.time.now;
+            var mouseX = game.input.mousePointer.x;
+            var mouseY = game.input.mousePointer.y;
+            current_click.endClick(mouseX, mouseY, time);
+
+            // now do all the proper testing
+            if ( current_click.type === "tap" )
+            {
+                if( player_can_jump )
+                {
+                    player.body.velocity.y = -400;  // arbitrary number. (but it is the same as what gravity is... For now, it's the height the player jumps to hit the next platform)
+                    // we could also set "player_can_jump" back to false here, but it should already be taken care of
+                }
+            }
+            else if ( current_click.type === "swipe right" )
+            {
+                // cooldown test
+            }
+            else if ( current_click.type === "swipe left" )
+            {
+                // cooldown test
+            }
+            else if ( current_click.type === "swipe up")
+            {
+                // cooldown test
+            }
+            else if (current_click.type === "swipe down")
+            {
+                // cooldown test
+            }
+            else if (current_click.type === "hold")
+            {
+                // cooldown/availability test
+            }
+
+            // allow the player to be able to click again after we do the proper response to the player's click
+            current_click = null;   //
+        }
+    }
+
+
+
+
+
+
+}
+
+    </script>
 
 </body>
 </html>
