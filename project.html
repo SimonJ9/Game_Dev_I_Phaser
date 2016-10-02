@@ -16,11 +16,28 @@ var game = new Phaser.Game(1334, 750, Phaser.AUTO, "Game", { preload: preload, c
 
 function preload(){
 <!--This function loaded before the game starts-->
-
+	game.load.image("sprite_test", "Assets_Playable/test_sprite.png");
+	
 }
 
 function create() {
-
+	
+	game.physics.startSystem(Phaser.Physics.ARCADE);
+	
+	game.stage.backgroundColor = "#FFFFFF";
+	
+	var _sprite = game.add.sprite(0, 0, "sprite_test");
+	
+	
+	game.physics.enable(_sprite, Phaser.Physics.ARCADE);
+	_sprite.inputEnabled = true;
+	_sprite.input.enableDrag(true);
+	
+	_sprite.body.collideWorldBounds = true;
+	_sprite.body.gravity.set(0, 200);
+	
+	
+	
 
 }
 
