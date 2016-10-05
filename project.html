@@ -18,21 +18,22 @@ function preload()
 {
     game.load.spritesheet("test_dude", "assets/placeholder/dude.png", 32, 48);
     game.load.image("test_ground", "assets/placeholder/ground.png");
-
+    game.load.image("fire1", "assets/placeholder/fire1.png");
+    game.load.image("fire2", "assets/placeholder/fire2.png");
+    game.load.image("fire3", "assets/placeholder/fire3.png");
 
 }
 
-// so what I'm going to try to make is a class for mouse clicks
+// Click class
 var Click = function (startX, startY, startT) {
     this.startX = startX;
     this.startY = startY;
     this.startT = startT;
 
-    // not sure what to set these to originally
+    // initialize variables that will be used later
     this.endX = -1;
     this.endY = -1;
     this.endT = -1;
-
     this.type = null;
 };
 
@@ -40,7 +41,7 @@ Click.prototype.endClick = function (upX, upY, upTime) {
     this.endX = upX;
     this.endY = upY;
     this.endT = upTime;
-    this.classifyClick();    // DO SOME LOGIC to determine what type of click it is
+    this.classifyClick();    // determines what type of click it is
 };
 
 Click.prototype.classifyClick = function () {
@@ -66,25 +67,12 @@ Click.prototype.classifyClick = function () {
     }
     else if( distance_traveled >= 50 )                                      // DETECT SWIPE
     {
-        /*  FEATURE
-         *  Detects difference between swipe left and swipe right,
-         *      Player can shoot cables horizontally in both directions
-         *  Detects difference between swipe up and swipe down
-         *      Player can cast lightning with swipe down, and some sort of other spell with swipe up?
-         *
-         *
-         */
+        /* Distinguisges between swipes in each of the 4 directions */
         var abs_diffX = diffX;
         if (abs_diffX < 0) abs_diffX *= -1;
         var abs_diffY = diffY;
         if (abs_diffY < 0) abs_diffY *= -1;
-
-        // FOR NOW, JUST GOING TO DETERMINE IF IT WAS VERTICAL OR HORIZONTAL
-
         var slope = abs_diffY / abs_diffX;      // the ratio between the difference in X and the difference in Y
-        /* console.log(diffX);
-        console.log(diffY);
-        console.log(slope); */
 
         if( slope > 1 || diffX === 0 )          // vertical swipe
         {
@@ -98,9 +86,6 @@ Click.prototype.classifyClick = function () {
                 this.type = "swipe up";
                 console.log("Swipe up!");
             }
-
-            /* this.type = "vertical swipe";
-            console.log("Vertical swipe!"); */
         }
         else if( slope < 1 || diffY === 0 )     // horizontal swipe
         {
@@ -114,20 +99,51 @@ Click.prototype.classifyClick = function () {
                 this.type = "swipe left";
                 console.log("Swipe left!");
             }
-
-            /* this.type = "horizontal swipe";
-            console.log("Horizontal swipe!"); */
         }
         else
         {
             console.log("Wow... The Chosen Swipe");
         }
-
     }
     else
     {
         console.log("Wow that was a really shitty click if I do say so myself.");
     }
+};
+
+
+var LightningSpell = function( click, strike_time ) {
+    this._click = click;
+    this._duration = strike_time;          // in seconds
+    this._frame_rate = game.time.fps;   // at time of creation
+    this._num_anim_frames = strike_time * game.time.fps;
+    this._animation_counter = 0;
+    this._sprites_used = game.add.group();            // to clean up after the sprite is complete
+
+    lightningSpells.push(this);
+};
+
+LightningSpell.prototype.Play = function () {
+    if (this._animation_counter % 1 == 0)
+    {
+        var fire_type = Math.floor(Math.random() * (4 - 1)) + 1;    // pick a random fire sprite
+        var completion_ratio = this._animation_counter / this._num_anim_frames;
+        var offset_x = (1.0 * this._animation_counter / this._num_anim_frames) * (this._click.endX - this._click.startX);
+        var offset_y = (1.0 * this._animation_counter / this._num_anim_frames) * (this._click.endY - this._click.startY);
+        this._sprites_used.create(this._click.startX + offset_x - 64, this._click.startY + offset_y - 64, "fire" + fire_type.toString());
+    }
+    this._animation_counter++;
+
+    if(this._animation_counter > this._num_anim_frames)
+    {
+        this.Finish();
+    }
+};
+
+LightningSpell.prototype.Finish = function () {
+    this._sprites_used.destroy();
+    lightningSpells.shift();        // remove self from the lightningSpells global variable
+    delete this;
 };
 
 var current_click = null;       // this is the player's current click. is null when not clicking
@@ -139,9 +155,7 @@ var platforms;
 var platform_scrolling_speed = 300;
 var player_can_jump = false;
 
-
-
-
+var lightningSpells = [];
 
 
 
@@ -177,6 +191,11 @@ function create()
 
     player.animations.add("run", [5, 6, 7, 8], 10, true);
     player.animations.play("run");
+
+
+    // initialize variables for the lightning strike properly
+    frame_rate = game.time.fps;
+    num_frame_in_strike = 2 * frame_rate;
 
 
 }
@@ -260,6 +279,8 @@ function update()
             else if (current_click.type === "swipe down")
             {
                 // cooldown test
+                console.log("Casting lightning!");
+                new LightningSpell(current_click, .2);
             }
             else if (current_click.type === "hold")
             {
@@ -273,10 +294,56 @@ function update()
 
 
 
-
+    // play all the current animations
+    var i = 0;
+    while( i < lightningSpells.length )
+    {
+        var temp = lightningSpells[i];//lightningSpells[i].Play();
+        temp.Play();
+        i++;
+    }
 
 
 }
+
+/*
+function castLightning( click )
+{
+    if( !initialized )
+    {
+        lightning_s_x = click.startX;
+        lightning_s_y = click.startY;
+        lightning_e_x = click.endX;
+        lightning_e_y = click.endY;
+        initialized = true;
+    }
+
+    if ( initialized )
+    {
+        console.log(lightning_s_x);
+        if(animation_counter % 10 == 0)         // multiple times in the update step!
+        {
+            console.log(lightning_s_x);
+            var offset_x = (animation_counter / num_frames_in_strike)  *  (lightning_e_x - lightning_s_x);
+            var offset_y = (animation_counter / num_frames_in_strike) * (lightning_e_y - lightning_s_y);
+            var fire = game.add.sprite(lightning_s_x + offset_x, lightning_s_y + offset_y, "fire1");
+        }
+    }
+
+
+    animation_counter++;
+    console.log(animation_counter);
+    if(animation_counter > num_frames_in_strike)
+    {
+        lightning_s_x = lightning_s_y = lightning_e_x = lightning_e_y = null;
+        initialized = false;
+    }
+
+
+
+}*/
+
+
 
     </script>
 
