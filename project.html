@@ -5,6 +5,7 @@
     <title>Enter Game Name Here</title>
     <!--Phaser library version: 2.6.2-->
     <script src="lib/phaser.min.js"></script>
+	<script src="lib/jquery-3.1.1.min.js"></script>
     <script src="js/Click.js"></script>
 </head>
 
@@ -14,7 +15,8 @@
     <script type="text/javascript">
 //<!--Game code goes here-->
 
-// load before the game
+
+//<!--load before the game-->
 function preload()
 {
     game.load.spritesheet("test_dude", "assets/placeholder/dude.png", 32, 48);
@@ -22,12 +24,10 @@ function preload()
     game.load.image("fire1", "assets/placeholder/fire1.png");
     game.load.image("fire2", "assets/placeholder/fire2.png");
     game.load.image("fire3", "assets/placeholder/fire3.png");
-
 }
+//<!--End Of preload()-->
 
-
-
-
+//<!--LightningSpell variables-->
 var LightningSpell = function( click, strike_time ) {
     this._click = click;
     this._duration = strike_time;          // in seconds
@@ -61,7 +61,9 @@ LightningSpell.prototype.Finish = function () {
     lightningSpells.shift();        // remove self from the lightningSpells global variable
     delete this;
 };
+//<!--End of LightningSpell-->
 
+//<!--Variables for basic elements in game-->
 var current_click = null;       // this is the player's current click. is null when not clicking
 
 var game = new Phaser.Game(1334, 750, Phaser.AUTO, "[INSERT GAME NAME HERE]", { preload: preload, create: create, update: update});
@@ -72,12 +74,28 @@ var platform_scrolling_speed = 300;
 var player_can_jump = false;
 
 var lightningSpells = [];
+//<!--End of basic elements-->
 
 
+//<!--Variables for dialogue and displaying-->
+var upKey;										//The key for testing text displaying
 
-// upon creation of the game
+var dialogue = jQuery.parseJSON(				//All dialogue text is stored in the JSON file
+	jQuery.ajax({								//JSON.parse() will parse json before ajac call is finished
+		url: "js/dialogue.json",				//and this will error and make the dialogue empty
+		async: false,							//This will block the browser until ajax call is finished
+		dataType: "json"
+	}).responseText
+);
+//<!--End of dialogue-->
+
+//<!--upon creation of the game-->
 function create()
 {
+	upKey = game.input.keyboard.addKey(Phaser.Keyboard.UP);		//the key for testing dialogue display
+	
+	//alert(dialogue.crush);
+
     var i = 0; // this is the loop counter;
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
@@ -115,10 +133,11 @@ function create()
 
 
 }
+//<!--End of create()-->
 
+//<!--This function is loaded every frame-->
 function update()
 {
-    //<!--This function is loaded every frame-->
 
     // collide the player with the platforms
     if (game.physics.arcade.collide(player, platforms))         // if they are colliding, the player will stand still and slide along with the platforms!
@@ -219,8 +238,8 @@ function update()
         i++;
     }
 
-
 }
+//<!--End of update()-->
 
 /*
 function castLightning( click )
