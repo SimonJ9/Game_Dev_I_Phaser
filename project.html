@@ -26,7 +26,9 @@
 function preload()
 {
     game.load.spritesheet("test_dude", "assets/placeholder/dude.png", 32, 48);
-    game.load.image("test_ground", "assets/placeholder/ground.png");
+    game.load.image("test_ground_short", "assets/testing platforms_small.png");
+    game.load.image("test_ground_med", "assets/testing platforms.png");
+    game.load.image("test_ground_long", "assets/testing platforms_big.png");
     game.load.image("fire1", "assets/placeholder/fire1.png");
     game.load.image("fire2", "assets/placeholder/fire2.png");
     game.load.image("fire3", "assets/placeholder/fire3.png");
@@ -46,14 +48,20 @@ var current_click = null;       // this is the player's current click. is null w
 var game = new Phaser.Game(1334, 750, Phaser.AUTO, "[INSERT GAME NAME HERE]", { preload: preload, create: create, update: update});
 var player;
 var platforms;
+var required_gap_top = 96 + 96 / 2;       // 96 + 48 = 144
+var required_gap_bot = 750 - 96 / 2;      // game.world.height (750) - 48 = 712
 
-var platform_scrolling_speed = 300;
+
+var player_grav = 600;
+var player_jump_speed = 400;
+var platform_scrolling_speed = 500;
+
 var player_can_jump = false;
 
 var lightningSpells = [];
 //<!--End of basic elements-->
 
-
+var platforms = [];
 //<!--Variables for dialogue and displaying-->
 var upKey;										//The key for testing text displaying
 
@@ -73,7 +81,6 @@ function create()
 	
 	//alert(dialogue.crush);
 
-    var i = 0; // this is the loop counter;
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
     game.input.mouse.capture = true;    // track the mouse
@@ -82,21 +89,29 @@ function create()
     platforms = game.add.group();
     platforms.enableBody = true;
 
-    var test_ground = platforms.create(0, game.world.height - 64, "test_ground");
-    var test_ground2 = platforms.create(game.world.width / 2.0, game.world.height - 256, "test_ground");
+    var start_x = 0;
+    var start_y = game.world.height / 2;
 
-    /*  This loop sets up the platforms. It both sets them to immovable and makes them scroll   */
-    for (i; i < platforms.children.length; i++)
-    {
-        platforms.children[i].body.immovable = true;
-        platforms.children[i].body.velocity.x = -platform_scrolling_speed;  // setting it's velocity here means it will just always move...
-    }
+    var test_ground = platforms.create(start_x, start_y, "test_ground_med");
+
+    var max_ground = game.add.sprite(300, required_gap_top, "test_ground_short");
+    var lowest_ground = game.add.sprite(300, required_gap_bot, "test_ground_short");
+
+
+
+    /* call the function that randomly generates the platforms */
+    var level_time = 60;
+    generatePlatforms(level_time, start_x + test_ground.width, start_y);
+
+    /*  This sets up the platforms. It both sets them to immovable and makes them scroll   */
+    setPlatformsScrolling();
+    
 
 
     // player
-    player = game.add.sprite(20, test_ground.y - test_ground.height - 48, "test_dude");
+    player = game.add.sprite(60, test_ground.y - test_ground.height - 48, "test_dude");
     game.physics.arcade.enable(player);
-    player.body.gravity.y = 400;
+    player.body.gravity.y = player_grav;
     player.body.bounce.y = .1;
     player.body.collodeWorldBounds = true;  // although honestly the player should never move horizontally ANYway
 
@@ -104,9 +119,7 @@ function create()
     player.animations.play("run");
 
 
-    // initialize variables for the lightning strike properly
-    frame_rate = game.time.fps;
-    num_frame_in_strike = 2 * frame_rate;
+    
 
 
 }
@@ -115,7 +128,6 @@ function create()
 //<!--This function is loaded every frame-->
 function update()
 {
-
     // collide the player with the platforms
     if (game.physics.arcade.collide(player, platforms))         // if they are colliding, the player will stand still and slide along with the platforms!
     {
@@ -127,7 +139,6 @@ function update()
         player.body.velocity.x = 0;
         player_can_jump = false;
     }
-
 
 
     /*  We will have to do lots of input mouse detection...
@@ -172,7 +183,7 @@ function update()
             {
                 if( player_can_jump )
                 {
-                    player.body.velocity.y = -400;  // arbitrary number. (but it is the same as what gravity is... For now, it's the height the player jumps to hit the next platform)
+                    player.body.velocity.y = -player_jump_speed;  // arbitrary number. (but it is the same as what gravity is... For now, it's the height the player jumps to hit the next platform)
                     // we could also set "player_can_jump" back to false here, but it should already be taken care of
                 }
             }
@@ -216,7 +227,198 @@ function update()
     }
 
 }
-//<!--End of update()-->
+
+function setPlatformsScrolling()
+{
+    var i = 0;
+    for (i; i < platforms.children.length; i++) {
+        platforms.children[i].body.immovable = true;
+        platforms.children[i].body.velocity.x = -platform_scrolling_speed;  // setting it's velocity here means it will just always move...
+    }
+}
+
+function generatePlatforms( level_time, end_x, start_y )
+{   /*  Player's speed is equal to platform_scrolling_speed 
+     *  Playtime that the level should be is level_time (in seconds)
+     *  So, the total number of pixels to cover is
+     *      platform_scrolling_speed * level_time
+     * 
+     *  The total number of pixels to cover is the sum of
+     *      - width of each platform
+     *      - distance between each platform
+    */
+
+    var total_distance_to_cover = platform_scrolling_speed * level_time;        // in pixels
+
+    var level_end_cursor = end_x;
+    var curr_y = start_y;
+    var jump_dist_x, platform_width, curr_platform;
+
+
+    var max_y = 120;
+    var min_y = 80;    //80
+
+
+    var prev_results = [true, false, true, false];  // one more than the max number
+
+    while( level_end_cursor < total_distance_to_cover )
+    {   /*  Basic process is:
+         *      1. Determine if the next platform will be above or below the current platform
+         *          - check to make sure the platform is not above the top of the screen
+                    - also make sure the platform is not below the bottom of the screen
+         *      2. Generate whether the next platform will be up or down and the resulting height
+         *      3. Determine what type of platform length we will have
+         *      4. Based on the type of platform, diff_y, and whether up/down is next, generate an acceptable x distance between platforms
+         *      5. Move the platform to the level_end_cursor and curr_y
+         *      6. Add the width of the generated platform to the level_end_cursor
+         */
+
+ 
+        /*  1. Determine if the next platform will be above or below the current platform
+         *      But we don't ACTUALLY want true randomness. Here, we check to see if this result would make the previous three
+         */
+        prev_results.shift();
+        var next_platform_above = (Math.random() >= .5);
+        /* ensure we don't get a bunch of repeated results (because THAT makes for boring generation! */
+        if (prev_results[0] === prev_results[1] && prev_results[1] === prev_results[2] && prev_results[2] === next_platform_above)
+        {
+            next_platform_above = !next_platform_above;
+        }
+        prev_results.push(next_platform_above);
+
+
+        /*  2. Generate whether the next platform will be up or down and the resulting height */
+        var diff_y = min_y + Math.floor(Math.random() * (max_y - min_y));
+
+        var place_above = next_platform_above;
+        // make sure the next platform won't be above or below an arbitrarily decided acceptable height
+        if (next_platform_above)
+        {
+            if( curr_y - diff_y <= required_gap_top )
+            {
+                place_above = false;
+            }
+        }
+        else
+        {
+            if( curr_y + diff_y >= required_gap_bot )
+            {
+                place_above = true;
+            }
+        }
+
+
+        if (place_above)
+        {
+            curr_y -= diff_y;
+        }
+        else
+        {
+            curr_y += diff_y;
+        }
+
+
+        /*  3. Determine what type of platform length we will have */
+        var platform_type_reference = ["short", "med", "long"];
+        var platform_type_ran = Math.floor(Math.random() * (3 - 0)) + 0;
+        var platform_type = platform_type_reference[platform_type_ran];
+        var curr_platform = null;
+        if ( platform_type === "short" )
+        {
+            curr_platform = platforms.create(0, 0, "test_ground_short");
+        }
+        else if( platform_type === "med" )
+        {
+            curr_platform = platforms.create(0, 0, "test_ground_med");
+        }
+        else if( platform_type === "long" )
+        {
+            curr_platform = platforms.create(0, 0, "test_ground_long");
+        }
+
+
+        /*  4. Based on the type of platform, diff_y, and whether up/down is next, generate an acceptable x distance between platforms  */
+        var jump_distance = 0;
+        if (place_above)   // just needs to be a jumpable distance from where we are now
+        {
+            var max_x = 220 * platform_scrolling_speed / 400;
+            var min_x = 140 * platform_scrolling_speed / 400;
+            jump_distance = min_x + Math.floor(Math.random() * (max_x - min_x));
+        }
+        else
+        {   /*  Either make a "drop" platform, or one that the player will need to jump to */
+            var is_drop = (Math.random() <= 0.5);
+            if( is_drop )       /* player doesn't have to do anything other than let themselves fall */
+            {
+                var max_x = 220 * platform_scrolling_speed / 400;
+                var min_x = 140 * platform_scrolling_speed / 400;
+                jump_distance = min_x + Math.floor(Math.random() * (max_x - min_x));
+            }
+            else                /* player will be required to jump */
+            {
+                /*  The formula for the height as a function of time (normally) is:
+                 *      h(t) = h0 + v0 * t - 1/2 * a * t ^ 2
+                 *  BUT, because positive y is down, the formula ACTUALLY is
+                 *      y(t) = h0 - v0*t + 1/2*a*t*t
+                 *
+                 *  y(t) = hf = h0 - v0*t + 1/2*a*t*t       <-- where hf is the height of the next platform
+                 *  Now, to solve this quadratic equation it's as easy as applying the quadratic formula!
+                 *  h0 - v0*t + 1/2*a*t^2 = hf  --> becomes --> Ax^2 + Bx + C, where
+                 *  A = 1/2 * a
+                 *  B = -v0
+                 *  C = h0 - hf
+                 *
+                 *  The quadratic formula is:
+                 *  x = (-B +- sqrt( B^2 - 4*A*C)) / 2*A
+                 *
+                 *  t = (  v0 +- sqrt( v0*v0 - 4*1/2*a*(h0-hf) )  ) / (2 * 1/2 a)
+                 *  See? That was easy! But... Wait! That gives us two answers! One for the plus and one for the minus!
+                 *  That's fine, the coordinate determined by the minus is to the left of the player anyway
+                 *      Basically, we only care about the forward direction, so we're only gonna use the plus
+                 *
+                 *
+                 *
+                 */ 
+
+                //var h0 = curr_y - diff_y;   // this is the original height before the jump
+                //var hf = curr_y;
+                //var v0 = player_jump_speed;
+                //var a = player_grav;
+
+                //var A = 1.0 / 2.0 * a;
+                //var B = -v0;
+                //var C = h0 - hf;
+
+                //var t3  = (-B + Math.sqrt(B * B - 4 * A * C)) / (2 * A);
+                //var t2 = (v0 + Math.sqrt(v0 * v0 - 2 * a * (h0 - hf))) / a;
+                var t = (player_jump_speed + Math.sqrt(player_jump_speed * player_jump_speed - 2 * player_grav * (-diff_y))) / player_grav;
+
+                /*  "t" is the time the player will spend in the air before they reach the height of the next platform.
+                    With that in mind, it's easy to determine the gap to the next platform */
+                var exact_jump_dist = t * platform_scrolling_speed;
+                /*  This distance is the maximum distance the player can actually be expected to jump
+                    So, I'm just going to drag a platform 1/3 it's width to the left of the position */
+                jump_distance = exact_jump_dist - curr_platform.width / 3.0;
+            }
+        }
+
+        // add the jump_distance to the cursor marking the end of the built level
+        level_end_cursor += jump_distance;
+
+
+        /*  5. Move the platform to the level_end_cursor and curr_y */
+        curr_platform.x = level_end_cursor;
+        curr_platform.y = curr_y;
+
+        /*  6. Add the width of the generated platform to the level_end_cursor */
+        level_end_cursor += curr_platform.width;
+
+        console.log("\n");
+    }
+
+}
+
+
 
 /*
 function castLightning( click )
