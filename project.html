@@ -33,7 +33,10 @@ function preload()
     game.load.image("fire2", "assets/placeholder/fire2.png");
     game.load.image("fire3", "assets/placeholder/fire3.png");
     
-    // this is copied from the tilemap example I found on Phaser.io
+    // these are the quick background layers I had to make
+    game.load.image("layer0", "assets/Sample Backgrounds/layer0.png");
+    game.load.image("layer1", "assets/Sample Backgrounds/layer1.png");
+    game.load.image("layer2", "assets/Sample Backgrounds/layer2.png");
 
 
 
@@ -45,7 +48,11 @@ function preload()
 //<!--Variables for basic elements in game-->
 var current_click = null;       // this is the player's current click. is null when not clicking
 
-var game = new Phaser.Game(1334, 750, Phaser.AUTO, "[INSERT GAME NAME HERE]", { preload: preload, create: create, update: update});
+var game = new Phaser.Game(1334, 750, Phaser.AUTO, "[INSERT GAME NAME HERE]", { preload: preload, create: create, update: update });
+
+var layer0, layer1, layer2;
+var layer0_speed, layer1_speed, layer2_speed;
+var level_time = 60;
 var player;
 var platforms;
 var required_gap_top = 96 + 96 / 2;       // 96 + 48 = 144
@@ -86,6 +93,24 @@ function create()
     game.input.mouse.capture = true;    // track the mouse
     game.time.advancedTiming = true;    // allow an fps counter without my having to make one
 
+    // setting up the background images
+
+    layer0 = game.add.sprite(0, 0, "layer0");
+    layer1 = game.add.sprite(0, 0, "layer1");
+    var arbitrary_num_repetitions = 16;     // or 8, or 12, try 32 for a giggle
+    layer2 = game.add.group();              // layer2 repeats. So this makes it repeat.
+    layer2.create(0, 0, "layer2");
+    var j = 1;
+    while (j < arbitrary_num_repetitions/2) {
+        layer2.create(layer2.children[0].width * j, 0, "layer2");
+        j++;
+    }
+
+    layer0_speed = game.world.width / (level_time / 2.0) / 60;
+    layer1_speed = game.world.width / (level_time / 4.0) / 60;
+    layer2_speed = game.world.width / (level_time / arbitrary_num_repetitions) / 60;
+
+
     platforms = game.add.group();
     platforms.enableBody = true;
 
@@ -100,7 +125,7 @@ function create()
 
 
     /* call the function that randomly generates the platforms */
-    var level_time = 60;
+    
     generatePlatforms(level_time, start_x + test_ground.width, start_y);
 
     /*  This sets up the platforms. It both sets them to immovable and makes them scroll   */
@@ -118,7 +143,7 @@ function create()
     player.animations.add("run", [5, 6, 7, 8], 10, true);
     player.animations.play("run");
 
-
+    
     
 
 
@@ -128,6 +153,12 @@ function create()
 //<!--This function is loaded every frame-->
 function update()
 {
+    // parallax the background
+    layer0.x -= layer0_speed;
+    layer1.x -= layer1_speed;
+    layer2.x -= layer2_speed;
+
+
     // collide the player with the platforms
     if (game.physics.arcade.collide(player, platforms))         // if they are colliding, the player will stand still and slide along with the platforms!
     {
@@ -413,49 +444,11 @@ function generatePlatforms( level_time, end_x, start_y )
         /*  6. Add the width of the generated platform to the level_end_cursor */
         level_end_cursor += curr_platform.width;
 
-        console.log("\n");
     }
 
 }
 
 
-
-/*
-function castLightning( click )
-{
-    if( !initialized )
-    {
-        lightning_s_x = click.startX;
-        lightning_s_y = click.startY;
-        lightning_e_x = click.endX;
-        lightning_e_y = click.endY;
-        initialized = true;
-    }
-
-    if ( initialized )
-    {
-        console.log(lightning_s_x);
-        if(animation_counter % 10 == 0)         // multiple times in the update step!
-        {
-            console.log(lightning_s_x);
-            var offset_x = (animation_counter / num_frames_in_strike)  *  (lightning_e_x - lightning_s_x);
-            var offset_y = (animation_counter / num_frames_in_strike) * (lightning_e_y - lightning_s_y);
-            var fire = game.add.sprite(lightning_s_x + offset_x, lightning_s_y + offset_y, "fire1");
-        }
-    }
-
-
-    animation_counter++;
-    console.log(animation_counter);
-    if(animation_counter > num_frames_in_strike)
-    {
-        lightning_s_x = lightning_s_y = lightning_e_x = lightning_e_y = null;
-        initialized = false;
-    }
-
-
-
-}*/
 
 
 

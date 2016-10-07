@@ -2,7 +2,7 @@
 
 
 // JavaScript source code
-var RanGenerator = function ( platforms, player_speed, ) {
+var RanGenerator = function ( platforms, player_speed ) {
     this._click = click;
     this._duration = strike_time;          // in seconds
     this._frame_rate = game.time.fps;   // at time of creation
