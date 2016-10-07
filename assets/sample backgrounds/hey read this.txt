@@ -1,0 +1,26 @@
+nice. way to be.
+
+so layer0 is
+1334 + 1334 + 1334 wide, aka 4002
+
+the middle 1334 is the dimensions the player will see in the EXACT middle of the level
+
+
+layer1 is 
+1334 + 1334 + 1334 + 1334 + 1334, aka 6670
+
+the middle 1334 is what the player will see for this layer in the EXACT middle of the level
+
+
+layer2 is
+poop
+i mean
+1334 + 1334, aka 2668
+There is no middle, but this layer ACTUALLY LOOPS.
+SO IF YOU WERE TO COPY AND PASTE IT NEXT TO ITSELF (right side --> left side)
+	~~ you won't be able to tell it's two images ~~
+	
+	
+quick trivia question, to prove you read it --
+What has two wheels and transports you places or whatever. You ride it.
+ok it's a bike. 
