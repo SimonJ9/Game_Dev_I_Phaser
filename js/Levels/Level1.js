@@ -24,7 +24,7 @@ Level1.prototype = {
     /* initialization function */
     create: function () {
         /* input variables for original prototype */
-        var level_time = 50;
+        var level_time = 10;
         var strt_x = 60;
         var strt_y = this.world.height / 2;
        
@@ -115,6 +115,17 @@ Level1.prototype = {
             console.log("Reached the end");
             this.moving = false;
             this.stopped = true;
+            player.body.velocity.x = this.platform_scrolling_speed/2.0;
+        }
+
+        if (this.stopped) {
+            if( player.x >= game.world.width / 5)
+            {
+                player.body.velocity.x = 0;
+                player.body.velocity.y = 0;
+                player.body.gravity.y = 0;
+                player.body.immovable = true;
+            }
         }
 
         // collide the player with the platforms
