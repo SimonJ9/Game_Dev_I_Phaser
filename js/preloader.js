@@ -15,7 +15,7 @@ function preload()
     
     // these are the quick background layers I had to make
     game.load.image("layer0", "assets/Background Layers/Layer 0/Lvl_1.png");
-    game.load.image("layer1", "assets/Sample Backgrounds/layer1.png");
+    game.load.image("layer1", "assets/Background Layers/Layer 1/Lvl_1.png");
     game.load.image("layer2", "assets/Background Layers/Layer 2/Lvl_1.png");
 
 	
