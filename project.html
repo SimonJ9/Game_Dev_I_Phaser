@@ -121,10 +121,10 @@ function create()
     /*  This sets up the platforms. It both sets them to immovable and makes them scroll   */
     setPlatformsScrolling();
     
-
+    
 
     // player
-    player = game.add.sprite(60, test_ground.y - test_ground.height - 48, "test_dude");
+    player = game.add.sprite(60, test_ground.y - test_ground.height - 96, "player_sprite");
     game.physics.arcade.enable(player);
     player.body.gravity.y = player_grav;
     player.body.bounce.y = .1;
