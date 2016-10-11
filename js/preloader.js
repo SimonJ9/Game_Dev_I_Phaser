@@ -2,6 +2,8 @@
 
 function preload()
 {
+    game.load.audio('frankenstein', 'assets/music/frankenstein.mp3');
+
     game.load.spritesheet("player_sprite", "assets/run.png", 96, 144);
     game.load.image("test_ground_short", "assets/All_Platforms/Resized_WholeBlue/Blue_Plat1.png");
     game.load.image("test_ground_med", "assets/All_Platforms/Resized_WholeBlue/Blue_Plat3.png");
