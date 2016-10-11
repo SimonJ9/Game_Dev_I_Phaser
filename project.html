@@ -8,13 +8,12 @@
 	<script src="lib/jquery-3.1.1.min.js"></script>
 
     <!-- Import all our javascript files here -->
-	<script src="js/preloader.js"></script>
     <script src="js/Click.js"></script>
     <script src="js/LightningSpell.js"></script>
     <script src="js/RandomGeneration.js"></script>
     <script src="js/Levels/Level1.js"></script>
 
-
+	<script src = "js/levelmanager.js"></script>
 </head>
 
 <body>
@@ -29,7 +28,7 @@ var current_click = null;       // this is the player's current click. is null w
 
 var game = new Phaser.Game(1334, 750, Phaser.AUTO, "[INSERT GAME NAME HERE]", { preload: preload, create: create, update: update });
 
-var level_time = 25;
+var level_time = 50;
 var player;
 
 
@@ -57,6 +56,7 @@ var dialogue = jQuery.parseJSON(				//All dialogue text is stored in the JSON fi
 var textDisplaying = false;
 var currentText = new Text(game, 200, 600, dialogue.crush);
 
+<<<<<<< HEAD
 var currentLevel = null;
 var levelManager = new Phaser.StateManager(game);
 
@@ -255,6 +255,15 @@ function update()
 
 }
 
+=======
+//<!--End of dialogue-->
+
+var game = new Phaser.Game(1334, 750, Phaser.AUTO);
+game.state.add("Level_1", LEVELS.ONE);
+game.state.start("Level_1");
+
+
+>>>>>>> 90b139deeb2d14b1a2be882eee80bf62f7182039
 function setPlatformsScrolling()
 {
     var i = 0;
@@ -448,8 +457,9 @@ function generatePlatforms( level_time, end_x, start_y )
 function addtext(curText)
 {
 	//console.log(currentText);
+	var style = {font: "25px assets/8-BIT WONDER.TTF", fill: "#ffffff"};
 	game.add.sprite(0, 550, "textBox");
-	game.add.text(80, 600, curText);
+	game.add.text(60, 600, dialogue.crush, style);
 }
 
 function removetext()
