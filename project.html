@@ -37,7 +37,7 @@ var required_gap_top = 96 + 96 / 2;       // 96 + 48 = 144
 var required_gap_bot = 750 - 96 / 2;      // game.world.height (750) - 48 = 712
 
 
-var player_grav = 600;
+var player_grav = 700;
 var player_jump_speed = 400;
 var platform_scrolling_speed = 500;
 
@@ -277,7 +277,7 @@ function generatePlatforms( level_time, end_x, start_y )
     var jump_dist_x, platform_width, curr_platform;
 
 
-    var max_y = 120 * player_jump_speed / 400;
+    var max_y = 100 * player_jump_speed / 400;
     var min_y =  80 * player_jump_speed / 400;    //80
 
 
