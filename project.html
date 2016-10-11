@@ -12,6 +12,7 @@
     <script src="js/Click.js"></script>
     <script src="js/LightningSpell.js"></script>
     <script src="js/RandomGeneration.js"></script>
+    <script src="js/Levels/Level1.js"></script>
 
 
 </head>
@@ -28,25 +29,19 @@ var current_click = null;       // this is the player's current click. is null w
 
 var game = new Phaser.Game(1334, 750, Phaser.AUTO, "[INSERT GAME NAME HERE]", { preload: preload, create: create, update: update });
 
-var layer0, layer1, layer2;
-var layer0_speed, layer1_speed, layer2_speed;
-var level_time = 50;
+var level_time = 25;
 var player;
-var platforms;
-var required_gap_top = 96 + 96 / 2;       // 96 + 48 = 144
-var required_gap_bot = 750 - 96 / 2;      // game.world.height (750) - 48 = 712
 
 
 var player_grav = 700;
 var player_jump_speed = 400;
-var platform_scrolling_speed = 500;
 
 var player_can_jump = false;
 
 var lightningSpells = [];
 //<!--End of basic elements-->
 
-var platforms = [];
+var platforms;
 //<!--Variables for dialogue and displaying-->
 var upKey;										//The key for testing text displaying
 var spKey;
@@ -62,7 +57,10 @@ var dialogue = jQuery.parseJSON(				//All dialogue text is stored in the JSON fi
 var textDisplaying = false;
 var currentText = new Text(game, 200, 600, dialogue.crush);
 
+var currentLevel = null;
 var levelManager = new Phaser.StateManager(game);
+
+
 
 //<!--End of dialogue-->
 
@@ -84,7 +82,12 @@ function create()
     game.time.advancedTiming = true;    // allow an fps counter without my having to make one
 
     // setting up the background images
+    var start_x = 0;
+    var start_y = game.world.height / 2;
 
+    console.log("About to create the level class");
+    currentLevel = new Level1(level_time, start_x, start_y);
+    /*
     layer0 = game.add.sprite(0, 0, "layer0");
     layer1 = game.add.sprite(0, 0, "layer1");
     var arbitrary_num_repetitions = 16;     // or 8, or 12, try 32 for a giggle
@@ -100,31 +103,30 @@ function create()
     layer1_speed = game.world.width / (level_time / 4.0) / 60;
     layer2_speed = game.world.width / (level_time / arbitrary_num_repetitions) / 60;
 
+    */
+    //platforms = game.add.group();
+    //platforms.enableBody = true;
 
-    platforms = game.add.group();
-    platforms.enableBody = true;
+    //var start_x = 0;
+    //var start_y = game.world.height / 2;
 
-    var start_x = 0;
-    var start_y = game.world.height / 2;
-
-    var test_ground = platforms.create(start_x, start_y, "test_ground_long");
+    //var test_ground = platforms.create(start_x, start_y, "lv1_ground_long");
 
     //var max_ground = game.add.sprite(300, required_gap_top, "test_ground_short");
     //var lowest_ground = game.add.sprite(300, required_gap_bot, "test_ground_short");
-
-
-
-    /* call the function that randomly generates the platforms */
     
-    generatePlatforms(level_time, start_x + test_ground.width, start_y);
+
+    
+    /* call the function that randomly generates the platforms */
+    //generatePlatforms(level_time, start_x + test_ground.width, start_y);
 
     /*  This sets up the platforms. It both sets them to immovable and makes them scroll   */
-    setPlatformsScrolling();
+    //setPlatformsScrolling();
     
     
 
     // player
-    player = game.add.sprite(60, test_ground.y - test_ground.height - 96, "player_sprite");
+    player = game.add.sprite(currentLevel.start_x, currentLevel.test_ground.y - currentLevel.test_ground.height - 96, "player_sprite");
     game.physics.arcade.enable(player);
     player.body.gravity.y = player_grav;
     player.body.bounce.y = .1;
@@ -148,16 +150,13 @@ function create()
 function update()
 {
 
-    // parallax the background
-    layer0.x -= layer0_speed;
-    layer1.x -= layer1_speed;
-    layer2.x -= layer2_speed;
+    currentLevel.Update();
 
 
     // collide the player with the platforms
-    if (game.physics.arcade.collide(player, platforms))         // if they are colliding, the player will stand still and slide along with the platforms!
+    if (game.physics.arcade.collide(player, currentLevel.platforms))         // if they are colliding, the player will stand still and slide along with the platforms!
     {
-        player.body.velocity.x = platform_scrolling_speed;
+        player.body.velocity.x = currentLevel.platform_scrolling_speed;
         player_can_jump = true;
     }
     else
@@ -165,6 +164,8 @@ function update()
         player.body.velocity.x = 0;
         player_can_jump = false;
     }
+
+
 
 
     /*  We will have to do lots of input mouse detection...
