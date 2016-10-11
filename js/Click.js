@@ -33,12 +33,12 @@ Click.prototype.classifyClick = function () {
     if ((this.endT - this.startT) < 1000 && distance_traveled <= 50)      // DETECT TAP
     {
         this.type = "tap";
-        console.log("Tap!");
+        //console.log("Tap!");
     }
     else if ((this.endT - this.startT) >= 1000)                            // DETECT HOLD
     {
         this.type = "hold";
-        console.log("Hold!");
+        //sconsole.log("Hold!");
     }
     else if (distance_traveled >= 50)                                      // DETECT SWIPE
     {
