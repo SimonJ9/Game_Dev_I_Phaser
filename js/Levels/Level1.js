@@ -1,90 +1,217 @@
+// JavaScript source code
+var Level1 = function (game) {
+
+}
+Level1.prototype = {
+
+    /* preload function */
+    preload: function () {
+        this.load.audio('frankenstein', 'assets/music/frankenstein.mp3');
+        this.load.spritesheet("player_sprite", "assets/run.png", 96, 144);
+
+        // these are the platforms for lv1
+        this.load.image("lv1_ground_short", "assets/All_Platforms/Resized_WholeBlue/Blue_Plat1.png");
+        this.load.image("lv1_ground_med1", "assets/All_Platforms/Resized_WholeBlue/Blue_Plat3.png");
+        this.load.image("lv1_ground_med2", "assets/All_Platforms/Resized_WholeBlue/Blue_Plat4.png");
+        this.load.image("lv1_ground_long", "assets/All_Platforms/Resized_WholeBlue/Blue_Plat2.png");
+
+        // these are the background layers for lv 1
+        this.load.image("lv1_layer0", "assets/Background Layers/Layer 0/Lvl_1.png");
+        this.load.image("lv1_layer1", "assets/Background Layers/Layer 1/Lvl_1.png");
+        this.load.image("lv1_layer2", "assets/Background Layers/Layer 2/Lvl_1.png");
+    },
+
+    /* initialization function */
+    create: function () {
+        /* input variables for original prototype */
+        var level_time = 50;
+        var strt_x = 60;
+        var strt_y = this.world.height / 2;
+       
+        upKey = this.input.keyboard.addKey(Phaser.Keyboard.UP);		//the key for testing dialogue display
+        downKey = this.input.keyboard.addKey(Phaser.Keyboard.DOWN);
+        spKey = this.input.keyboard.addKey(Phaser.Keyboard.SPACE);
+        //spKey.onDown.add(Restartgame, this);
+        upKey.onDown.add(addtext, this);
+        downKey.onDown.add(removetext, this);
+
+        //alert(dialogue.crush);
+
+        this.physics.startSystem(Phaser.Physics.ARCADE);
+
+        this.input.mouse.capture = true;    // track the mouse
+        this.time.advancedTiming = true;    // allow an fps counter without my having to make one
+
+        this.platform_scrolling_speed = 500;
+        this.level_time = level_time;
+
+        // create layers
+        this.layer0 = this.add.sprite(0, 0, "lv1_layer0");
+        this.layer1 = this.add.sprite(0, 0, "lv1_layer1");
+        this.layer2 = this.add.group();              // layer2 repeats. So this makes it repeat.
+        this.layer2.create(0, 0, "lv1_layer2");
+        var arbitrary_num_repetitions = 16;     // or 8, or 12, try 32 for a giggle
+        var j = 1;
+        while (j < arbitrary_num_repetitions / 2 + 1) {
+            this.layer2.create(this.layer2.children[0].width * j, 0, "lv1_layer2");
+            j++;
+        }
+
+        // set layer speeds
+        this.layer0_speed = this.world.width / (this.level_time / 2.0) / 60;
+        this.layer1_speed = this.world.width / (this.level_time / 4.0) / 60;
+        this.layer2_speed = this.world.width / (this.level_time / arbitrary_num_repetitions) / 60;
+        this.moving = true;
+        this.stopped = false;
+
+        // create the platforms
+        this.platforms = this.add.group();
+        this.platforms.enableBody = true;
+        this.start_x = strt_x;
+        this.start_y = strt_y;
+
+        this.test_ground = this.platforms.create(this.start_x, this.start_y, "lv1_ground_long");
+        //console.log(this.test_ground.x.ToString() + "\t" + this.test_ground.y.ToString());
+
+        /* call the function that randomly generates the platforms */
+        console.log("Generating platforms");
+        this.GeneratePlatforms(this.start_x + this.test_ground.width, this.start_y);
+        console.log("done");
+
+        /*  This sets up the platforms. It both sets them to immovable and makes them scroll   */
+        this.SetPlatformsScrolling();
 
 
-/* This is the same as preload */
-var Level1 = function (level_time, strt_x, strt_y) { 
+        // player
+        player = this.add.sprite(this.start_x, this.test_ground.y - this.test_ground.height - 96, "player_sprite");
+        this.physics.arcade.enable(player);
+        player.body.gravity.y = player_grav;
+        player.body.bounce.y = .1;
+        player.body.collodeWorldBounds = true;  // although honestly the player should never move horizontally ANYway
+        //player.body.friction = new Phaser.Point(0, 0);
 
-    this.platform_scrolling_speed = 500;
-    this.level_time = level_time;
 
-    // create layers
-    this.layer0 = game.add.sprite(0, 0, "lv1_layer0");
-    this.layer1 = game.add.sprite(0, 0, "lv1_layer1");
-    this.layer2 = game.add.group();              // layer2 repeats. So this makes it repeat.
-    this.layer2.create(0, 0, "lv1_layer2");
-    var arbitrary_num_repetitions = 16;     // or 8, or 12, try 32 for a giggle
-    var j = 1;
-    while (j < arbitrary_num_repetitions/2 + 1) {
-        this.layer2.create(this.layer2.children[0].width * j, 0, "lv1_layer2");
-        j++;
+        player.animations.add("run", [1, 2, 3, 4, 5, 6, 7], 10, true);
+        player.animations.play("run");
+
+
+        // music
+        var music = this.add.audio('frankenstein');
+        music.play();
+
+
+    },
+
+    /* update loop */
+    update: function () {
+        if (this.moving) {
+            this.layer0.x -= this.layer0_speed;
+            this.layer1.x -= this.layer1_speed;
+            this.layer2.x -= this.layer2_speed;
+        }
+
+        // if the platforms have SCROLLED FAR ENOUGH!
+        if (this.layer0.x <= -1 * this.world.width * 2 && !this.stopped) {
+            console.log("Reached the end");
+            this.moving = false;
+            this.stopped = true;
+        }
+
+        // collide the player with the platforms
+        if (this.physics.arcade.collide(player, this.platforms))         // if they are colliding, the player will stand still and slide along with the platforms!
+        {
+            player_can_jump = true;
+        }
+        else
+        {
+            player_can_jump = false;
+        }
+
+        // restart the level if the player falls below a certain height
+        if (player.y >= required_gap_bot)
+        {
+            console.log("Help! I've fallen and I can't get up!");
+            Level1.Restart(true, false);
+        }
+
+
+        /*  We will have to do lots of input mouse detection...
+         *  I already wrote a click class. I'm thinking there's a global variable called "current_click."
+         *  Whenever there is mouseDown, current_click is initialized by the click's X, Y, and time of the click
+         *  Whenever there is a release, current_click.endClick( upX, upY, upTime ) is called
+         *      Then the click itself determines what type of click it was with click.classifyClick()
+         *      and THEN we do whatever we should do whatever response we should do
+         *
+         *  Ok I did this already! -Fuller <3
+         */
+
+        if (this.input.activePointer.leftButton.isDown)        // if clicking
+        {
+            if (!current_click)       // if current_click === null
+            {
+                var time = this.time.now;
+                var mouseX = this.input.mousePointer.x;
+                var mouseY = this.input.mousePointer.y;
+                current_click = new Click(mouseX, mouseY, time);
+            }
+            else                        // current click exists
+            {
+                if (this.time.now - current_click.startT >= 500) {
+                    // start doing charge animation for the player to use a bomb
+                    console.log("charging bomb...");
+                }
+            }
+        }
+        else {
+            if (current_click)     // if current_click !== null
+            {
+                var time = this.time.now;
+                var mouseX = this.input.mousePointer.x;
+                var mouseY = this.input.mousePointer.y;
+                current_click.endClick(mouseX, mouseY, time);
+
+                // now do all the proper testing
+                if (current_click.type === "tap") {
+                    if (player_can_jump) {
+                        player.body.velocity.y = -player_jump_speed;  // arbitrary number. (but it is the same as what gravity is... For now, it's the height the player jumps to hit the next platform)
+                        // we could also set "player_can_jump" back to false here, but it should already be taken care of
+                    }
+                }
+                else if (current_click.type === "swipe right") {
+                    // cooldown test
+                }
+                else if (current_click.type === "swipe left") {
+                    // cooldown test
+                }
+                else if (current_click.type === "swipe up") {
+                    // cooldown test
+                }
+                else if (current_click.type === "swipe down") {
+                    // cooldown test
+                    console.log("Casting lightning!");
+                    new LightningSpell(current_click, .2);
+                }
+                else if (current_click.type === "hold") {
+                    // cooldown/availability test
+                }
+
+                // allow the player to be able to click again after we do the proper response to the player's click
+                current_click = null;   //
+            }
+        }
     }
-
-    // set layer speeds
-    this.layer0_speed = game.world.width / (this.level_time / 2.0) / 60;
-    this.layer1_speed = game.world.width / (this.level_time / 4.0) / 60;
-    this.layer2_speed = game.world.width / (this.level_time / arbitrary_num_repetitions) / 60;
-    this.moving = true;
-    this.stopped = false;
-
-    // create the platforms
-    this.platforms = game.add.group();
-    this.platforms.enableBody = true;
-    this.start_x = strt_x;
-    this.start_y = strt_y;
-
-    this.test_ground = this.platforms.create(this.start_x, this.start_y, "lv1_ground_long");
-    //console.log(this.test_ground.x.ToString() + "\t" + this.test_ground.y.ToString());
-
-    /* call the function that randomly generates the platforms */
-    console.log("Generating platforms");
-    this.GeneratePlatforms(this.start_x + this.test_ground.width, this.start_y);
-    console.log("done");
-
-    /*  This sets up the platforms. It both sets them to immovable and makes them scroll   */
-    this.SetPlatformsScrolling();
-
 };
-
-
-Level1.prototype.Update = function () {
-    if (this.moving)
-    {
-        this.layer0.x -= this.layer0_speed;
-        this.layer1.x -= this.layer1_speed;
-        this.layer2.x -= this.layer2_speed;
-    }
-        /*
-    else // just to see what the end looks like
-    {
-        this.layer0.x -= this.layer0_speed;
-        this.layer1.x -= this.layer0_speed;
-        this.layer2.x -= this.layer0_speed;
-    }*/
-    
-    // if the platforms have SCROLLED FAR ENOUGH!
-    if(this.layer0.x <= -1 * game.world.width * 2 && !this.stopped)
-    {
-        console.log("Reached the end");
-        this.Stop();
-    }
-
-};
-
-Level1.prototype.Stop = function () {
-    this.moving = false;
-    this.stopped = true;
-};
-
 
 Level1.prototype.SetPlatformsScrolling = function () {
     var i = 0;
     for (i; i < this.platforms.children.length; i++) {
         this.platforms.children[i].body.immovable = true;
         this.platforms.children[i].body.velocity.x = -this.platform_scrolling_speed;  // setting it's velocity here means it will just always move...
+        this.platforms.children[i].body.friction = new Phaser.Point(0, 0);
     }
 };
 
-Level1.prototype.GeneratePlatforms = function (begin_x, begin_y)
-{    /*  Player's speed is equal to platform_scrolling_speed 
+Level1.prototype.GeneratePlatforms = function (begin_x, begin_y) {    /*  Player's speed is equal to platform_scrolling_speed 
      *  Playtime that the level should be is level_time (in seconds)
      *  So, the total number of pixels to cover is
      *      platform_scrolling_speed * level_time
@@ -94,8 +221,7 @@ Level1.prototype.GeneratePlatforms = function (begin_x, begin_y)
      *      - distance between each platform
      */
 
-    var required_gap_top = 96 + 96 / 2;       // 96 + 48 = 144
-    var required_gap_bot = 750 - 96 / 2;      // game.world.height (750) - 48 = 712
+    
     console.log(this.platform_scrolling_speed.toString());
     this.total_distance_to_cover = this.platform_scrolling_speed * this.level_time;        // in pixels
     console.log("Total distance to cover: " + this.total_distance_to_cover.toString());
@@ -110,9 +236,7 @@ Level1.prototype.GeneratePlatforms = function (begin_x, begin_y)
 
 
     var prev_results = [true, false, true, false];  // one more than the max number
-    console.log("going to start while loop");
-    while (level_end_cursor <= this.total_distance_to_cover)
-    {   /*  Basic process is:
+    while (level_end_cursor <= this.total_distance_to_cover) {   /*  Basic process is:
          *      1. Determine if the next platform will be above or below the current platform
          *          - check to make sure the platform is not above the top of the screen
                     - also make sure the platform is not below the bottom of the screen
@@ -142,7 +266,7 @@ Level1.prototype.GeneratePlatforms = function (begin_x, begin_y)
         // make sure the next platform won't be above or below an arbitrarily decided acceptable height
         if (next_platform_above) {
             if (curr_y - diff_y <= required_gap_top) {
-               place_above = false;
+                place_above = false;
             }
         }
         else {
@@ -169,12 +293,10 @@ Level1.prototype.GeneratePlatforms = function (begin_x, begin_y)
         }
         else if (platform_type === "med") {
             medium_type = (Math.random() <= 0.5);
-            if (medium_type)
-            {
+            if (medium_type) {
                 curr_platform = this.platforms.create(0, 0, "lv1_ground_med1");
             }
-            else
-            {
+            else {
                 curr_platform = this.platforms.create(0, 0, "lv1_ground_med2");
             }
         }
@@ -193,8 +315,7 @@ Level1.prototype.GeneratePlatforms = function (begin_x, begin_y)
         }
         else {   /*  Either make a "drop" platform, or one that the player will need to jump to */
             var is_drop = (Math.random() <= 0.5);
-            if (is_drop)       /* player doesn't have to do anything other than let themselves fall */
-            {
+            if (is_drop)       /* player doesn't have to do anything other than let themselves fall */ {
                 var max_x = 220 * this.platform_scrolling_speed / 400;
                 var min_x = 140 * this.platform_scrolling_speed / 400;
                 jump_distance = min_x + Math.floor(Math.random() * (max_x - min_x));
@@ -260,5 +381,6 @@ Level1.prototype.GeneratePlatforms = function (begin_x, begin_y)
 
     // save the end of the level
     this.level_end = level_end_cursor;
+    console.log("End of level: " + level_end_cursor.toString());
 
 };

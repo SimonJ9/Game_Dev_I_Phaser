@@ -8,22 +8,19 @@ LEVELS.ONE.prototype = {
 	
 	preload:function() {
 		
-		this.load.audio('frankenstein', 'assets/music/frankenstein.mp3');
-	
-		this.load.spritesheet("player_sprite", "assets/run.png", 96, 144);
-		this.load.image("test_ground_short", "assets/All_Platforms/Resized_WholeBlue/Blue_Plat1.png");
-		this.load.image("test_ground_med", "assets/All_Platforms/Resized_WholeBlue/Blue_Plat3.png");
-		this.load.image("test_ground_med2", "assets/All_Platforms/Resized_WholeBlue/Blue_Plat4.png");
-		this.load.image("test_ground_long", "assets/All_Platforms/Resized_WholeBlue/Blue_Plat2.png");
-		this.load.image("fire1", "assets/placeholder/fire1.png");
-		this.load.image("fire2", "assets/placeholder/fire2.png");
-		this.load.image("fire3", "assets/placeholder/fire3.png");
-		
-		// these are the quick background layers I had to make
-		this.load.image("layer0", "assets/Background Layers/Layer 0/Lvl_1.png");
-		this.load.image("layer1", "assets/Sample Backgrounds/layer1.png");
-		this.load.image("layer2", "assets/Background Layers/Layer 2/Lvl_1.png");
-	
+	    this.load.audio('frankenstein', 'assets/music/frankenstein.mp3');
+	    this.load.spritesheet("player_sprite", "assets/run.png", 96, 144);
+
+	    // these are the platforms for lv1
+	    this.load.image("lv1_ground_short", "assets/All_Platforms/Resized_WholeBlue/Blue_Plat1.png");
+	    this.load.image("lv1_ground_med1", "assets/All_Platforms/Resized_WholeBlue/Blue_Plat3.png");
+	    this.load.image("lv1_ground_med2", "assets/All_Platforms/Resized_WholeBlue/Blue_Plat4.png");
+	    this.load.image("lv1_ground_long", "assets/All_Platforms/Resized_WholeBlue/Blue_Plat2.png");
+
+	    // these are the background layers for lv 1
+	    this.load.image("lv1_layer0", "assets/Background Layers/Layer 0/Lvl_1.png");
+	    this.load.image("lv1_layer1", "assets/Background Layers/Layer 1/Lvl_1.png");
+	    this.load.image("lv1_layer2", "assets/Background Layers/Layer 2/Lvl_1.png");
 		
 		this.load.image("textBox", "assets/placeholder/dialogue.png");
 		//this.load.bitmapFont("8bit_wonder", "assets/8-BIT WONDER.TTF");
