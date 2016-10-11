@@ -20,21 +20,10 @@
 
 
     <script type="text/javascript">
-//<!--Game code goes here-->
-
 
 //<!--Variables for basic elements in game-->
 var current_click = null;       // this is the player's current click. is null when not clicking
 
-
-
-
-//var game = new Phaser.Game(1334, 750, Phaser.AUTO);
-//game.state.add("Level_1", LEVELS.ONE);
-//game.state.start("Level_1");
-
-
-//var level_time = 50;
 var player;
 
 var required_gap_top = 96 + 96 / 2;       // 96 + 48 = 144
@@ -64,7 +53,6 @@ var textDisplaying = false;
 var currentText = new Text(game, 200, 600, dialogue.crush);
 
 
-//var currentLevel = null;
 var levelManager = new Phaser.StateManager(game);
 
 var game = new Phaser.Game(1334, 750, Phaser.AUTO, "[INSERT GAME NAME HERE]");
