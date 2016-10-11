@@ -30,7 +30,7 @@ Click.prototype.classifyClick = function () {
     var distance_traveled = Math.sqrt((diffX) * (diffX) + (diffY) * (diffY));
 
     // now, to start classifying the click type
-    if ((this.endT - this.startT) <= 250 && distance_traveled <= 50)      // DETECT TAP
+    if ((this.endT - this.startT) < 1000 && distance_traveled <= 50)      // DETECT TAP
     {
         this.type = "tap";
         console.log("Tap!");
