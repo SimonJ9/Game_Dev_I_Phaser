@@ -122,11 +122,52 @@ Intro.prototype = {
         else if(!this.dialogue2_finished)
         {
             //console.log(this.dialogue1_finished);
-            this.screen.animations.play("scene2");
+            var temp = this.screen.animations.play("scene2");
             /* play dialogue */
             // set this variable to true when finished
-            this.dialogue2_finished = true;
+            //this.dialogue2_finished = true;
             //this.timer
+            //temp.inputEnabled = true;
+            //temp.events.onInputDown(this.changestate3, this.this);
+
+            if(lindex === 0)
+            {
+                tempT = "...........".split("");
+            }
+            if(lindex > 0)
+            {
+                this.dialogue2_finished = true;
+                lindex = 0;
+            }
+            
+            if(!this.dialogue2_finished) 
+                { 
+                if(!play)
+                {
+                    windex = 0;
+                    show = true;
+                    play = true;
+                }
+                else
+                {
+                    show = false;
+                }
+
+                //Text. turn show on if text is to be displayed
+                if(show)
+                {
+                    //console.log("displaying....");
+                    this.addtextbox();
+                    
+                    if(!started)
+                    {
+                        ended = false;
+                        this.time.events.repeat(wordDelay, tempT.length, this.nextChar, this);
+                        started = true;
+                    }
+                    show = false;
+                }
+            }
 
 
 
@@ -230,7 +271,6 @@ Intro.prototype.nextChar = function()
 Intro.protytype.changestate3 = function()
 {
     this.dialogue2_finished = true;
-
 }
 
 Intro.prototype.playemoji = function()

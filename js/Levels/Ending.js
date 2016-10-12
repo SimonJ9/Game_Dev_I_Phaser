@@ -38,7 +38,46 @@ Ending.prototype = {
             this.screen.animations.play("scene1");
             /* play dialogue */
             // set this variable to true when finished
-            this.dialogue1_finished = true;
+            //this.dialogue1_finished = true;
+
+            if(lindex === 0)
+            {
+                tempT = ".........".split("");
+            }
+            if(lindex > 0)
+            {
+                this.dialogue1_finished = true;
+                lindex = 0;
+            }
+            
+            if(!this.dialogue1_finished) 
+                { 
+                if(!play)
+                {
+                    windex = 0;
+                    show = true;
+                    play = true;
+                }
+                else
+                {
+                    show = false;
+                }
+
+                //Text. turn show on if text is to be displayed
+                if(show)
+                {
+                    //console.log("displaying....");
+                    this.addtextbox();
+                    
+                    if(!started)
+                    {
+                        ended = false;
+                        this.time.events.repeat(wordDelay, tempT.length, this.nextChar, this);
+                        started = true;
+                    }
+                    show = false;
+                }
+            }
         }
         else if (!this.dialogue2_finished) {
             this.screen.animations.play("scene2");
