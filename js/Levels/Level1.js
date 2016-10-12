@@ -237,8 +237,7 @@ Level1.prototype = {
             if (player.y >= required_gap_bot) {
                 console.log("Help! I've fallen and I can't get up!");
                 //Level1.Restart(true, false);
-                this.music.stop();
-                this.state.start("Level_1");
+                this.state.start("Game Over");
             }
 
 
