@@ -89,9 +89,9 @@ Level1.prototype = {
         //console.log(this.test_ground.x.ToString() + "\t" + this.test_ground.y.ToString());
 
         /* call the function that randomly generates the platforms */
-        console.log("Generating platforms");
+        //console.log("Generating platforms");
         this.GeneratePlatforms(this.start_x + this.test_ground.width, this.start_y);
-        console.log("done");
+        //console.log("done");
 
         /*  This sets up the platforms. It both sets them to immovable and makes them scroll   */
         this.SetPlatformsScrolling();
@@ -155,7 +155,7 @@ Level1.prototype = {
                 this.CUTSCENE_INITIALIZED = true;
                 player.body.velocity.y = 0;
                 player.body.gravity.y = 0;
-                console.log("initialized cutscene");
+                //console.log("initialized cutscene");
             }
             else
             {
@@ -172,6 +172,7 @@ Level1.prototype = {
                         //console.log("zero'd\t" + player.x.toString());
                         player.body.velocity.x = 0;
                         not_in_motion = true;
+                        player.animations.play("back");
                     }
                 }
 
@@ -229,7 +230,7 @@ Level1.prototype = {
                     this.moving = false;
                     this.stopped = true;
                     this.SetPlatformsStationary();
-                    console.log("finished set stationary");
+                    //console.log("finished set stationary");
                     player.body.velocity.x = 500;       // this is the scrolling speed of the original level. Hardcoding it in here is SO important for the skidding animation
                 }
 
@@ -343,7 +344,7 @@ Level1.prototype.GeneratePlatforms = function (begin_x, begin_y) {    /*  Player
      */
 
     
-    console.log(this.platform_scrolling_speed.toString());
+    //console.log(this.platform_scrolling_speed.toString());
     this.total_distance_to_cover = this.platform_scrolling_speed * this.level_time;        // in pixels
     console.log("Total distance to cover: " + this.total_distance_to_cover.toString());
 
@@ -502,7 +503,7 @@ Level1.prototype.GeneratePlatforms = function (begin_x, begin_y) {    /*  Player
 
     // save the end of the level
     this.level_end = level_end_cursor;
-    console.log("End of level: " + level_end_cursor.toString());
+    //console.log("End of level: " + level_end_cursor.toString());
 
     this.PlaceCutsceneObjects(curr_y);
 
@@ -522,12 +523,12 @@ Level1.prototype.PlaceCutsceneObjects = function (current_y) {
     }
 
     // also put the door down
-    console.log("Placing the door");
+    //console.log("Placing the door");
     this.door = this.platforms.create(end_marker + ground.width - game.world.width / 2, -196 + current_y, "door");
     this.door.animations.add("closed", [0], 10, false);
     this.door.animations.add("open", [1], 10, false);
     this.door.animations.play("closed");
-    console.log(this.door.toString());
+    //console.log(this.door.toString());
 
     this.pedestal = this.platforms.create(end_marker + ground.width - game.world.width / 2 + this.door.width, -96 + 9 + current_y, "pedestal");
     this.pedestal.animations.add("on", [1], 10, false);
@@ -537,7 +538,7 @@ Level1.prototype.PlaceCutsceneObjects = function (current_y) {
 };
 
 Level1.prototype.SetPlatformsStationary = function () {
-    console.log("Setting object immovable");
+    //console.log("Setting object immovable");
     var b = 0;
     for (b; b < this.platforms.children.length; b++)
     {

@@ -1,5 +1,4 @@
 // JavaScript source code
-// JavaScript source code
 var Level2 = function (game) {
 
 }
@@ -7,8 +6,8 @@ Level2.prototype = {
 
     /* preload function */
     preload: function () {
-        this.load.audio('other song', 'assets/music/other_song.mp3');
-        this.load.spritesheet("player_sprite", "assets/run.png", 96, 144);
+        this.load.audio('other_song', 'assets/music/other_song.mp3');
+        this.load.spritesheet("player_sprite", "assets/spritesheet.png", 96, 144);
 
         // these are the platforms for lv 2
         game.load.image("lv2_ground_short", "assets/All_Platforms/Resized_WholeGreen/Green_Plat2.png");
@@ -22,11 +21,10 @@ Level2.prototype = {
         this.load.image("lv2_layer2", "assets/Background Layers/Layer 2/Lvl_2.png");
 
         // load door
-        //this.load.image("door", "assets/door_1.png");
         this.load.spritesheet("door", "assets/door_2.png", 128, 196);
 
         // load crystal pedastal
-        this.load.spritesheet("pedestal", "assets/Crystal Pedestals/Lvl2_OffOn.png", 42, 96);
+        this.load.spritesheet("pedestal", "assets/Crystal Pedestals/Lvl2_OffOn.png", 48, 96);
 
         //Text
         box = this.load.image("textBox", "assets/placeholder/dialogue.png");
@@ -58,7 +56,7 @@ Level2.prototype = {
         this.input.mouse.capture = true;    // track the mouse
         this.time.advancedTiming = true;    // allow an fps counter without my having to make one
 
-        this.platform_scrolling_speed = 500;
+        this.platform_scrolling_speed = 600;
         this.level_time = level_time;
 
         // create layers
@@ -90,9 +88,9 @@ Level2.prototype = {
         //console.log(this.test_ground.x.ToString() + "\t" + this.test_ground.y.ToString());
 
         /* call the function that randomly generates the platforms */
-        console.log("Generating platforms");
+        //console.log("Generating platforms");
         this.GeneratePlatforms(this.start_x + this.test_ground.width, this.start_y);
-        console.log("done");
+        //console.log("done");
 
         /*  This sets up the platforms. It both sets them to immovable and makes them scroll   */
         this.SetPlatformsScrolling();
@@ -108,7 +106,10 @@ Level2.prototype = {
 
 
         player.animations.add("run", [1, 2, 3, 4, 5, 6, 7], 10, true);
-        player.animations.add("skid", [5, 5, 5], 10, true);
+        player.animations.add("jump", [8, 9, 10, 11], 10, true);
+        player.animations.add("fall", [12, 13, 14, 15], 10, true);
+        player.animations.add("skid", [16, 17, 18, 19], 10, true);
+        player.animations.add("back", [20], 10, false);
         player.animations.play("run");
 
         // cutscene
@@ -119,17 +120,14 @@ Level2.prototype = {
         this.door;
 
         // music
-        this.music = this.add.audio('other song');
+        this.music = this.add.audio('other_song');
         this.music.play();
 
-        //Text
 
+        //Text
+        AT = this.add.text(60, 600, "", style);
         tempT = dialogue.crush.split('');
         index = 0;
-        this.addtextbox();
-        AT = this.add.text(60, 600, "", style);
-        this.time.events.repeat(wordDelay, tempT.length, this.nextChar, this);
-
     },
 
     /* update loop */
@@ -137,13 +135,14 @@ Level2.prototype = {
         //Text
         if (show) {
             //console.log("displaying....");
-            //this.addtextbox();
-            //show = false;
+            this.addtextbox();
+            if (!started) {
+                AT = this.add.text(60, 600, "", style);
+                timer = this.time.events.repeat(wordDelay, tempT.length, this.nextChar, this);
+                started = true;
+            }
+            show = false;
         }
-        else {
-            //this.removetext();
-        }
-
 
         // IRREGULAR PART OF GAME PLAY
         if (this.CUTSCENE) {
@@ -151,7 +150,7 @@ Level2.prototype = {
                 this.CUTSCENE_INITIALIZED = true;
                 player.body.velocity.y = 0;
                 player.body.gravity.y = 0;
-                console.log("initialized cutscene");
+                //console.log("initialized cutscene");
             }
             else {
                 var not_in_motion = false;
@@ -165,6 +164,7 @@ Level2.prototype = {
                         //console.log("zero'd\t" + player.x.toString());
                         player.body.velocity.x = 0;
                         not_in_motion = true;
+                        player.animations.play("back");
                     }
                 }
 
@@ -193,7 +193,7 @@ Level2.prototype = {
                     this.pedestal.animations.play("off");
 
                     // wait a few seconds, then
-                    this.state.start("Level_2");
+                    this.state.start("Level_3");
                 }
 
             }
@@ -213,19 +213,26 @@ Level2.prototype = {
             // collide the player with the platforms
             if (this.physics.arcade.collide(player, this.platforms))         // if they are colliding, the player will stand still and slide along with the platforms!
             {
+                player.animations.play("run");
                 player_can_jump = true;
                 if (this.layer1.x <= -1 * this.world.width * 4.5 && !this.stopped) {
                     this.CUTSCENE = true;
                     this.moving = false;
                     this.stopped = true;
                     this.SetPlatformsStationary();
-                    console.log("finished set stationary");
+                    //console.log("finished set stationary");
                     player.body.velocity.x = 500;       // this is the scrolling speed of the original level. Hardcoding it in here is SO important for the skidding animation
                 }
 
             }
             else {
                 player_can_jump = false;
+                if (player.body.velocity.y < 0) {
+                    player.animations.play("jump");
+                }
+                else {
+                    player.animations.play("fall");
+                }
             }
 
             // restart the level if the player falls below a certain height
@@ -233,7 +240,7 @@ Level2.prototype = {
                 console.log("Help! I've fallen and I can't get up!");
                 //Level2.Restart(true, false);
                 this.music.stop();
-                this.state.start("Level_1");
+                this.state.start("Level_2");
             }
 
 
@@ -326,7 +333,7 @@ Level2.prototype.GeneratePlatforms = function (begin_x, begin_y) {    /*  Player
      */
 
 
-    console.log(this.platform_scrolling_speed.toString());
+
     this.total_distance_to_cover = this.platform_scrolling_speed * this.level_time;        // in pixels
     console.log("Total distance to cover: " + this.total_distance_to_cover.toString());
 
@@ -485,7 +492,7 @@ Level2.prototype.GeneratePlatforms = function (begin_x, begin_y) {    /*  Player
 
     // save the end of the level
     this.level_end = level_end_cursor;
-    console.log("End of level: " + level_end_cursor.toString());
+    //console.log("End of level: " + level_end_cursor.toString());
 
     this.PlaceCutsceneObjects(curr_y);
 
@@ -497,19 +504,19 @@ Level2.prototype.PlaceCutsceneObjects = function (current_y) {
     var num = 0;
     var end_marker = this.level_end;
 
-    while (num < 7) {
+    while (num < 8) {
         var ground = this.platforms.create(end_marker, current_y, "lv2_ground_long");
         end_marker += ground.width;
         num++
     }
 
     // also put the door down
-    console.log("Placing the door");
+    //console.log("Placing the door");
     this.door = this.platforms.create(end_marker + ground.width - game.world.width / 2, -196 + current_y, "door");
     this.door.animations.add("closed", [0], 10, false);
     this.door.animations.add("open", [1], 10, false);
     this.door.animations.play("closed");
-    console.log(this.door.toString());
+    //console.log(this.door.toString());
 
     this.pedestal = this.platforms.create(end_marker + ground.width - game.world.width / 2 + this.door.width, -96 + 9 + current_y, "pedestal");
     this.pedestal.animations.add("on", [1], 10, false);
@@ -519,7 +526,7 @@ Level2.prototype.PlaceCutsceneObjects = function (current_y) {
 };
 
 Level2.prototype.SetPlatformsStationary = function () {
-    console.log("Setting object immovable");
+    //console.log("Setting object immovable");
     var b = 0;
     for (b; b < this.platforms.children.length; b++) {
         this.platforms.children[b].body.velocity.x = 0;
@@ -532,7 +539,7 @@ Level2.prototype.addtextbox = function () {
 };
 
 Level2.prototype.removetext = function (box) {
-    box.destroy();
+    //box.destroy();
 
 };
 
@@ -546,7 +553,8 @@ Level2.prototype.nextChar = function () {
     index++;
 
     if (index === tempT.length) {
-
+        started = false;
+        return;
     }
 }
 

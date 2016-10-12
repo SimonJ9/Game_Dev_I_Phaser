@@ -67,7 +67,8 @@ var timer;
 var game = new Phaser.Game(1334, 750, Phaser.AUTO, "[INSERT GAME NAME HERE]");
 game.state.add("Level_1", Level1);
 game.state.add("Level_2", Level2);
-game.state.start("Level_1");
+game.state.add("Level_3", Level3);
+game.state.start("Level_3");
 
 
 
