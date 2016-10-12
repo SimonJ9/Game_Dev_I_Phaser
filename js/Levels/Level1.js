@@ -52,7 +52,7 @@ Level1.prototype = {
         this.layer2.create(0, 0, "lv1_layer2");
         var arbitrary_num_repetitions = 16;     // or 8, or 12, try 32 for a giggle
         var j = 1;
-        while (j < arbitrary_num_repetitions / 2 + 1) {
+        while (j < arbitrary_num_repetitions / 2 ) {
             this.layer2.create(this.layer2.children[0].width * j, 0, "lv1_layer2");
             j++;
         }
@@ -92,8 +92,12 @@ Level1.prototype = {
 
 
         player.animations.add("run", [1, 2, 3, 4, 5, 6, 7], 10, true);
+        player.animations.add("skid", [5, 5, 5], 10, true);
         player.animations.play("run");
 
+
+        this.CUTSCENE = false;
+        this.CUTSCENE_INITIALIZED = false;
 
         // music
         var music = this.add.audio('frankenstein');
@@ -104,112 +108,139 @@ Level1.prototype = {
 
     /* update loop */
     update: function () {
-        if (this.moving) {
+
+        // IRREGULAR PART OF GAME PLAY
+        if (this.CUTSCENE)
+        {
+            if (!this.CUTSCENE_INITIALIZED)
+            {
+                player.animations.play("skid");
+                this.CUTSCENE_INITIALIZED = true;
+                player.body.velocity.y = 0;
+                player.body.gravity.y = 0;
+                console.log("initialized cutscene");
+            }
+            else
+            {
+                console.log(player.x.toString() + "\t" + (game.world.width / 2.0).toString());
+                if (player.x < game.world.width/2.5)
+                {
+                    player.body.velocity.x *= .981;
+                    //console.log(player.body.velocity.x);
+                }
+                else
+                {
+                    console.log("zero'd");
+                    player.body.velocity.x = 0;
+                }
+            }
+
+        }
+
+        // REGULAR PART OF GAME PLAY
+        else
+        {
             this.layer0.x -= this.layer0_speed;
             this.layer1.x -= this.layer1_speed;
             this.layer2.x -= this.layer2_speed;
-        }
+            
 
-        // if the platforms have SCROLLED FAR ENOUGH!
-        if (this.layer0.x <= -1 * this.world.width * 2 && !this.stopped) {
-            console.log("Reached the end");
-            this.moving = false;
-            this.stopped = true;
-            player.body.velocity.x = this.platform_scrolling_speed/2.0;
-        }
+            // if the platforms have SCROLLED FAR ENOUGH!
 
-        if (this.stopped) {
-            if( player.x >= game.world.width / 5)
+
+            // collide the player with the platforms
+            if (this.physics.arcade.collide(player, this.platforms))         // if they are colliding, the player will stand still and slide along with the platforms!
             {
-                player.body.velocity.x = 0;
-                player.body.velocity.y = 0;
-                player.body.gravity.y = 0;
-                player.body.immovable = true;
-            }
-        }
-
-        // collide the player with the platforms
-        if (this.physics.arcade.collide(player, this.platforms))         // if they are colliding, the player will stand still and slide along with the platforms!
-        {
-            player_can_jump = true;
-        }
-        else
-        {
-            player_can_jump = false;
-        }
-
-        // restart the level if the player falls below a certain height
-        if (player.y >= required_gap_bot)
-        {
-            console.log("Help! I've fallen and I can't get up!");
-            Level1.Restart(true, false);
-        }
-
-
-        /*  We will have to do lots of input mouse detection...
-         *  I already wrote a click class. I'm thinking there's a global variable called "current_click."
-         *  Whenever there is mouseDown, current_click is initialized by the click's X, Y, and time of the click
-         *  Whenever there is a release, current_click.endClick( upX, upY, upTime ) is called
-         *      Then the click itself determines what type of click it was with click.classifyClick()
-         *      and THEN we do whatever we should do whatever response we should do
-         *
-         *  Ok I did this already! -Fuller <3
-         */
-
-        if (this.input.activePointer.leftButton.isDown)        // if clicking
-        {
-            if (!current_click)       // if current_click === null
-            {
-                var time = this.time.now;
-                var mouseX = this.input.mousePointer.x;
-                var mouseY = this.input.mousePointer.y;
-                current_click = new Click(mouseX, mouseY, time);
-            }
-            else                        // current click exists
-            {
-                if (this.time.now - current_click.startT >= 500) {
-                    // start doing charge animation for the player to use a bomb
-                    console.log("charging bomb...");
+                player_can_jump = true;
+                if (this.layer1.x <= -1 * this.world.width * 4.5 && !this.stopped) {
+                    this.CUTSCENE = true;
+                    this.moving = false;
+                    this.stopped = true;
+                    this.SetPlatformsStationary();
+                    console.log("finished set stationary");
+                    player.body.velocity.x = this.platform_scrolling_speed;
                 }
-            }
-        }
-        else {
-            if (current_click)     // if current_click !== null
-            {
-                var time = this.time.now;
-                var mouseX = this.input.mousePointer.x;
-                var mouseY = this.input.mousePointer.y;
-                current_click.endClick(mouseX, mouseY, time);
 
-                // now do all the proper testing
-                if (current_click.type === "tap") {
-                    if (player_can_jump) {
-                        player.body.velocity.y = -player_jump_speed;  // arbitrary number. (but it is the same as what gravity is... For now, it's the height the player jumps to hit the next platform)
-                        // we could also set "player_can_jump" back to false here, but it should already be taken care of
+                
+
+            }
+            else {
+                player_can_jump = false;
+            }
+
+            // restart the level if the player falls below a certain height
+            if (player.y >= required_gap_bot) {
+                console.log("Help! I've fallen and I can't get up!");
+                Level1.Restart(true, false);
+            }
+
+
+            /*  We will have to do lots of input mouse detection...
+             *  I already wrote a click class. I'm thinking there's a global variable called "current_click."
+             *  Whenever there is mouseDown, current_click is initialized by the click's X, Y, and time of the click
+             *  Whenever there is a release, current_click.endClick( upX, upY, upTime ) is called
+             *      Then the click itself determines what type of click it was with click.classifyClick()
+             *      and THEN we do whatever we should do whatever response we should do
+             *
+             *  Ok I did this already! -Fuller <3
+             */
+
+            if (this.input.activePointer.leftButton.isDown)        // if clicking
+            {
+                if (!current_click)       // if current_click === null
+                {
+                    var time = this.time.now;
+                    var mouseX = this.input.mousePointer.x;
+                    var mouseY = this.input.mousePointer.y;
+                    current_click = new Click(mouseX, mouseY, time);
+                }
+                else                        // current click exists
+                {
+                    if (this.time.now - current_click.startT >= 500) {
+                        // start doing charge animation for the player to use a bomb
+                        console.log("charging bomb...");
                     }
                 }
-                else if (current_click.type === "swipe right") {
-                    // cooldown test
-                }
-                else if (current_click.type === "swipe left") {
-                    // cooldown test
-                }
-                else if (current_click.type === "swipe up") {
-                    // cooldown test
-                }
-                else if (current_click.type === "swipe down") {
-                    // cooldown test
-                    console.log("Casting lightning!");
-                    new LightningSpell(current_click, .2);
-                }
-                else if (current_click.type === "hold") {
-                    // cooldown/availability test
-                }
+            }
+            else {
+                if (current_click)     // if current_click !== null
+                {
+                    var time = this.time.now;
+                    var mouseX = this.input.mousePointer.x;
+                    var mouseY = this.input.mousePointer.y;
+                    current_click.endClick(mouseX, mouseY, time);
 
-                // allow the player to be able to click again after we do the proper response to the player's click
-                current_click = null;   //
+                    // now do all the proper testing
+                    if (current_click.type === "tap") {
+                        if (player_can_jump) {
+                            player.body.velocity.y = -player_jump_speed;  // arbitrary number. (but it is the same as what gravity is... For now, it's the height the player jumps to hit the next platform)
+                            // we could also set "player_can_jump" back to false here, but it should already be taken care of
+                        }
+                    }
+                    else if (current_click.type === "swipe right") {
+                        // cooldown test
+                    }
+                    else if (current_click.type === "swipe left") {
+                        // cooldown test
+                    }
+                    else if (current_click.type === "swipe up") {
+                        // cooldown test
+                    }
+                    else if (current_click.type === "swipe down") {
+                        // cooldown test
+                        console.log("Casting lightning!");
+                        new LightningSpell(current_click, .2);
+                    }
+                    else if (current_click.type === "hold") {
+                        // cooldown/availability test
+                    }
+
+                    // allow the player to be able to click again after we do the proper response to the player's click
+                    current_click = null;   //
+                }
             }
         }
+        
     }
 };
 
@@ -394,4 +425,32 @@ Level1.prototype.GeneratePlatforms = function (begin_x, begin_y) {    /*  Player
     this.level_end = level_end_cursor;
     console.log("End of level: " + level_end_cursor.toString());
 
+    this.PlaceCutsceneObjects(curr_y);
+
+};
+
+
+Level1.prototype.PlaceCutsceneObjects = function (current_y) {
+    /* make a really long stretch of platforms... */
+    var num = 0;
+    var end_marker = this.level_end;
+
+    while( num < 4 )
+    {
+        var ground = this.platforms.create(end_marker, current_y, "lv1_ground_long");
+        end_marker += ground.width;
+        num ++
+    }
+
+    // also put the door down
+
+};
+
+Level1.prototype.SetPlatformsStationary = function () {
+    console.log("Setting object immovable");
+    var b = 0;
+    for (b; b < this.platforms.children.length; b++)
+    {
+        this.platforms.children[b].body.velocity.x = 0;
+    }
 };
