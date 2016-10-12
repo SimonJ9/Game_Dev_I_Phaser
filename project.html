@@ -13,6 +13,9 @@
     <script src="js/LightningSpell.js"></script>
     <script src="js/RandomGeneration.js"></script>
     <script src="js/Levels/Level1.js"></script>
+    <script src="js/Levels/Level2.js"></script>
+    <script src="js/Levels/Level3.js"></script>
+
 	<script src = "js/levelmanager.js"></script>
 </head>
 
@@ -29,8 +32,8 @@ var player;
 var required_gap_top = 96 + 96 / 2;       // 96 + 48 = 144
 var required_gap_bot = 750 - 96 / 2;      // game.world.height (750) - 48 = 712
 
-var player_grav = 700;
-var player_jump_speed = 400;
+var player_grav = 850;
+var player_jump_speed = 500;
 
 var player_can_jump = false;
 
@@ -38,8 +41,6 @@ var player_can_jump = false;
 //<!--End of basic elements-->
 
 //<!--Variables for dialogue and displaying-->
-var upKey;										//The key for testing text displaying
-var spKey;
 
 var dialogue = jQuery.parseJSON(				//All dialogue text is stored in the JSON file
 	jQuery.ajax({								//JSON.parse() will parse json before ajac call is finished
@@ -49,35 +50,27 @@ var dialogue = jQuery.parseJSON(				//All dialogue text is stored in the JSON fi
 	}).responseText
 );
 
-var textDisplaying = false;
 var currentText = new Text(game, 200, 600, dialogue.crush);
-
-
-var levelManager = new Phaser.StateManager(game);
+//<!--For typing effect-->
+var style = {font: "25px assets/8-BIT WONDER.TTF", fill: "#ffffff"};
+var wordDelay = 60;
+var windex = 0;
+var lindex = 0;
+var tempT = [];
+var show = false;
+var started = false;
+var ended = false;
+var play = false;
+var box;
+var AT;			//Text object
+var timer;
 
 var game = new Phaser.Game(1334, 750, Phaser.AUTO, "[INSERT GAME NAME HERE]");
 game.state.add("Level_1", Level1);
-game.state.start("Level_1");
+game.state.add("Level_2", Level2);
+game.state.add("Level_3", Level3);
+game.state.start("Level_3");
 
-
-function addtext(curText)
-{
-	//console.log(currentText);
-	var style = {font: "25px assets/8-BIT WONDER.TTF", fill: "#ffffff"};
-	game.add.sprite(0, 550, "textBox");
-	game.add.text(60, 600, dialogue.crush, style);
-}
-
-function removetext()
-{
-	textBox.destroy();
-	
-}
-
-function RestartGame()
-{
-	levelManager.restart(true, false);
-}
 
 
     </script>

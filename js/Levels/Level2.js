@@ -1,36 +1,35 @@
 // JavaScript source code
-var Level1 = function (game) {
+var Level2 = function (game) {
 
 }
-Level1.prototype = {
+Level2.prototype = {
 
     /* preload function */
     preload: function () {
-        this.load.audio('frankenstein', 'assets/music/frankenstein.mp3');
+        this.load.audio('other_song', 'assets/music/other_song.mp3');
         this.load.spritesheet("player_sprite", "assets/spritesheet.png", 96, 144);
 
-        // these are the platforms for lv1
-        this.load.image("lv1_ground_short", "assets/All_Platforms/Resized_WholeBlue/Blue_Plat1.png");
-        this.load.image("lv1_ground_med1", "assets/All_Platforms/Resized_WholeBlue/Blue_Plat3.png");
-        this.load.image("lv1_ground_med2", "assets/All_Platforms/Resized_WholeBlue/Blue_Plat4.png");
-        this.load.image("lv1_ground_long", "assets/All_Platforms/Resized_WholeBlue/Blue_Plat2.png");
+        // these are the platforms for lv 2
+        game.load.image("lv2_ground_short", "assets/All_Platforms/Resized_WholeGreen/Green_Plat2.png");
+        game.load.image("lv2_ground_med1", "assets/All_Platforms/Resized_WholeGreen/Green_Plat1.png");
+        game.load.image("lv2_ground_med2", "assets/All_Platforms/Resized_WholeGreen/Green_Plat4.png");
+        game.load.image("lv2_ground_long", "assets/All_Platforms/Resized_WholeGreen/Green_Plat3.png");
 
-        // these are the background layers for lv 1
-        this.load.image("lv1_layer0", "assets/Background Layers/Layer 0/Lvl_1.png");
-        this.load.image("lv1_layer1", "assets/Background Layers/Layer 1/Lvl_1.png");
-        this.load.image("lv1_layer2", "assets/Background Layers/Layer 2/Lvl_1.png");
+        // these are the background layers for lv 2
+        this.load.image("lv2_layer0", "assets/Background Layers/Layer 0/Lvl_2.png");
+        this.load.image("lv2_layer1", "assets/Background Layers/Layer 1/Lvl_2.png");
+        this.load.image("lv2_layer2", "assets/Background Layers/Layer 2/Lvl_2.png");
 
         // load door
-        //this.load.image("door", "assets/door_1.png");
-        this.load.spritesheet("door", "assets/door_1.png", 128, 196);
+        this.load.spritesheet("door", "assets/door_2.png", 128, 196);
 
         // load crystal pedastal
-        this.load.spritesheet("pedestal", "assets/Crystal Pedestals/Lvl1_OffOn.png", 42, 96);
-		
-		//Text
-		box = this.load.image("textBox", "assets/placeholder/dialogue.png");
-		show = false;
-		//this.load.bitmapFont("8bit_wonder", "assets/8-BIT WONDER.TTF");
+        this.load.spritesheet("pedestal", "assets/Crystal Pedestals/Lvl2_OffOn.png", 48, 96);
+
+        //Text
+        box = this.load.image("textBox", "assets/placeholder/dialogue.png");
+        show = false;
+        //this.load.bitmapFont("8bit_wonder", "assets/8-BIT WONDER.TTF");
 
     },
 
@@ -46,18 +45,18 @@ Level1.prototype = {
         this.input.mouse.capture = true;    // track the mouse
         this.time.advancedTiming = true;    // allow an fps counter without my having to make one
 
-        this.platform_scrolling_speed = 500;
+        this.platform_scrolling_speed = 600;
         this.level_time = level_time;
 
         // create layers
-        this.layer0 = this.add.sprite(0, 0, "lv1_layer0");
-        this.layer1 = this.add.sprite(0, 0, "lv1_layer1");
+        this.layer0 = this.add.sprite(0, 0, "lv2_layer0");
+        this.layer1 = this.add.sprite(0, 0, "lv2_layer1");
         this.layer2 = this.add.group();              // layer2 repeats. So this makes it repeat.
-        this.layer2.create(0, 0, "lv1_layer2");
+        this.layer2.create(0, 0, "lv2_layer2");
         var arbitrary_num_repetitions = 16;     // or 8, or 12, try 32 for a giggle
         var j = 1;
-        while (j < arbitrary_num_repetitions / 2 ) {
-            this.layer2.create(this.layer2.children[0].width * j, 0, "lv1_layer2");
+        while (j < arbitrary_num_repetitions / 2) {
+            this.layer2.create(this.layer2.children[0].width * j, 0, "lv2_layer2");
             j++;
         }
 
@@ -74,7 +73,7 @@ Level1.prototype = {
         this.start_x = strt_x;
         this.start_y = strt_y;
 
-        this.test_ground = this.platforms.create(this.start_x, this.start_y, "lv1_ground_long");
+        this.test_ground = this.platforms.create(this.start_x, this.start_y, "lv2_ground_long");
         //console.log(this.test_ground.x.ToString() + "\t" + this.test_ground.y.ToString());
 
         /* call the function that randomly generates the platforms */
@@ -110,8 +109,9 @@ Level1.prototype = {
         this.door;
 
         // music
-        this.music = this.add.audio('frankenstein');
+        this.music = this.add.audio('other_song');
         this.music.play();
+
 
 		//Text
 		box = this.add.sprite(0, 550, "textBox");
@@ -125,27 +125,34 @@ Level1.prototype = {
 		ended = false;
 		play = false;
 		show = false;
-	},
+    },
 
     /* update loop */
     update: function () {
+        //Text
+        if (show) {
+            //console.log("displaying....");
+            this.addtextbox();
+            if (!started) {
+                AT = this.add.text(60, 600, "", style);
+                timer = this.time.events.repeat(wordDelay, tempT.length, this.nextChar, this);
+                started = true;
+            }
+            show = false;
+        }
+
         // IRREGULAR PART OF GAME PLAY
-        if (this.CUTSCENE)
-        {
-            if (!this.CUTSCENE_INITIALIZED)
-            {
+        if (this.CUTSCENE) {
+            if (!this.CUTSCENE_INITIALIZED) {
                 this.CUTSCENE_INITIALIZED = true;
                 player.body.velocity.y = 0;
                 player.body.gravity.y = 0;
                 //console.log("initialized cutscene");
             }
-            else
-            {
+            else {
                 var not_in_motion = false;
-                if (this.door.x - player.x <= 400 )
-                {
-                    if (player.body.velocity.x > 54)
-                    {
+                if (this.door.x - player.x <= 400) {
+                    if (player.body.velocity.x > 54) {
                         player.animations.play("skid");
                         player.body.velocity.x *= .981;
                         //console.log(player.x);
@@ -158,10 +165,9 @@ Level1.prototype = {
                     }
                 }
 
-                if( not_in_motion )
-                {
-                    //console.log("play the test dialogue stuff hereeeeeeee");
-					
+                if (not_in_motion) {
+                    console.log("play the test dialogue stuff hereeeeeeee");
+                    
 					if(lindex === 0)
 					{
 						tempT = dialogue.crush.split("");
@@ -179,9 +185,9 @@ Level1.prototype = {
 						// WHENEVER THE DIALOGUE FINISHES PLAYING, RUN THESE THREE LINES OF CODE
 						this.door.animations.play("open");
 						this.pedestal.animations.play("off");
-
+	
 						// wait a few seconds, then
-						this.state.start("Level_2");
+						this.state.start("Level_3");
 					}
 					
                     if(!play)
@@ -195,18 +201,17 @@ Level1.prototype = {
 						show = false;
 					}
                 }
-                
+
             }
 
         }
 
-        // REGULAR PART OF GAME PLAY
-        else
-        {
+            // REGULAR PART OF GAME PLAY
+        else {
             this.layer0.x -= this.layer0_speed;
             this.layer1.x -= this.layer1_speed;
             this.layer2.x -= this.layer2_speed;
-            
+
 
             // if the platforms have SCROLLED FAR ENOUGH!
 
@@ -231,8 +236,7 @@ Level1.prototype = {
                 if (player.body.velocity.y < 0) {
                     player.animations.play("jump");
                 }
-                else
-                {
+                else {
                     player.animations.play("fall");
                 }
             }
@@ -240,9 +244,9 @@ Level1.prototype = {
             // restart the level if the player falls below a certain height
             if (player.y >= required_gap_bot) {
                 console.log("Help! I've fallen and I can't get up!");
-                //Level1.Restart(true, false);
+                //Level2.Restart(true, false);
                 this.music.stop();
-                this.state.start("Level_1");
+                this.state.start("Level_2");
             }
 
 
@@ -311,7 +315,6 @@ Level1.prototype = {
                 }
             }
         }
-        
 		//Text. turn show on if text is to be displayed
 		if(show)
 		{
@@ -329,7 +332,7 @@ Level1.prototype = {
     }
 };
 
-Level1.prototype.SetPlatformsScrolling = function () {
+Level2.prototype.SetPlatformsScrolling = function () {
     var i = 0;
     for (i; i < this.platforms.children.length; i++) {
         this.platforms.children[i].body.immovable = true;
@@ -338,7 +341,7 @@ Level1.prototype.SetPlatformsScrolling = function () {
     }
 };
 
-Level1.prototype.GeneratePlatforms = function (begin_x, begin_y) {    /*  Player's speed is equal to platform_scrolling_speed 
+Level2.prototype.GeneratePlatforms = function (begin_x, begin_y) {    /*  Player's speed is equal to platform_scrolling_speed 
      *  Playtime that the level should be is level_time (in seconds)
      *  So, the total number of pixels to cover is
      *      platform_scrolling_speed * level_time
@@ -348,8 +351,8 @@ Level1.prototype.GeneratePlatforms = function (begin_x, begin_y) {    /*  Player
      *      - distance between each platform
      */
 
-    
-    //console.log(this.platform_scrolling_speed.toString());
+
+
     this.total_distance_to_cover = this.platform_scrolling_speed * this.level_time;        // in pixels
     console.log("Total distance to cover: " + this.total_distance_to_cover.toString());
 
@@ -416,19 +419,19 @@ Level1.prototype.GeneratePlatforms = function (begin_x, begin_y) {    /*  Player
         var curr_platform = null;
         var medium_type = true;
         if (platform_type === "short") {
-            curr_platform = this.platforms.create(0, 0, "lv1_ground_short");
+            curr_platform = this.platforms.create(0, 0, "lv2_ground_short");
         }
         else if (platform_type === "med") {
             medium_type = (Math.random() <= 0.5);
             if (medium_type) {
-                curr_platform = this.platforms.create(0, 0, "lv1_ground_med1");
+                curr_platform = this.platforms.create(0, 0, "lv2_ground_med1");
             }
             else {
-                curr_platform = this.platforms.create(0, 0, "lv1_ground_med2");
+                curr_platform = this.platforms.create(0, 0, "lv2_ground_med2");
             }
         }
         else if (platform_type === "long") {
-            curr_platform = this.platforms.create(0, 0, "lv1_ground_long");
+            curr_platform = this.platforms.create(0, 0, "lv2_ground_long");
         }
 
 
@@ -515,16 +518,15 @@ Level1.prototype.GeneratePlatforms = function (begin_x, begin_y) {    /*  Player
 };
 
 
-Level1.prototype.PlaceCutsceneObjects = function (current_y) {
+Level2.prototype.PlaceCutsceneObjects = function (current_y) {
     /* make a really long stretch of platforms... */
     var num = 0;
     var end_marker = this.level_end;
 
-    while( num < 7 )
-    {
-        var ground = this.platforms.create(end_marker, current_y, "lv1_ground_long");
+    while (num < 8) {
+        var ground = this.platforms.create(end_marker, current_y, "lv2_ground_long");
         end_marker += ground.width;
-        num ++
+        num++
     }
 
     // also put the door down
@@ -542,16 +544,15 @@ Level1.prototype.PlaceCutsceneObjects = function (current_y) {
 
 };
 
-Level1.prototype.SetPlatformsStationary = function () {
+Level2.prototype.SetPlatformsStationary = function () {
     //console.log("Setting object immovable");
     var b = 0;
-    for (b; b < this.platforms.children.length; b++)
-    {
+    for (b; b < this.platforms.children.length; b++) {
         this.platforms.children[b].body.velocity.x = 0;
     }
 };
 
-Level1.prototype.addtextbox = function()
+Level2.prototype.addtextbox = function()
 {
 	//console.log(currentText);
 	box = this.add.sprite(0, 550, "textBox");
@@ -562,7 +563,7 @@ Level1.prototype.addtextbox = function()
 	AT = this.add.text(60, 600, "", style);
 };
 
-Level1.prototype.removetext = function(sprite)
+Level2.prototype.removetext = function(sprite)
 {
 	//console.log(undefined === sprite);
 	ended = true;
@@ -574,7 +575,7 @@ Level1.prototype.removetext = function(sprite)
 	windex = 0;
 };
 
-Level1.prototype.nextChar = function()
+Level2.prototype.nextChar = function()
 {
 	if(!ended)
 	{
