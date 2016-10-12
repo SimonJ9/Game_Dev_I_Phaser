@@ -40,17 +40,6 @@ Level1.prototype = {
         var level_time = 45;
         var strt_x = 60;
         var strt_y = this.world.height / 2;
-       
-        upKey = this.input.keyboard.addKey(Phaser.Keyboard.UP);		//the key for testing dialogue display
-		upKey.onDown.add(this.showhidetext, this);
-		
-        downKey = this.input.keyboard.addKey(Phaser.Keyboard.DOWN);
-        spKey = this.input.keyboard.addKey(Phaser.Keyboard.SPACE);
-        //spKey.onDown.add(Restartgame, this);
-        //upKey.onDown.add(this.addtext, this);
-        //downKey.onDown.add(this.removetext, this);
-
-        //alert(dialogue.crush);
 
         this.physics.startSystem(Phaser.Physics.ARCADE);
 
@@ -124,29 +113,22 @@ Level1.prototype = {
         this.music = this.add.audio('frankenstein');
         this.music.play();
 
-
 		//Text
+		box = this.add.sprite(0, 550, "textBox");
+		box.destroy();
 		AT = this.add.text(60, 600, "", style);
+		AT.destroy();
 		tempT = dialogue.crush.split('');
-		index = 0;
+		windex = 0;
+		lindex = 0;
+		started = false;
+		ended = false;
+		play = false;
+		show = false;
 	},
 
     /* update loop */
     update: function () {
-		//Text
-		if(show)
-		{
-			//console.log("displaying....");
-			this.addtextbox();
-			if(!started)
-			{
-				AT = this.add.text(60, 600, "", style);
-				timer = this.time.events.repeat(wordDelay, tempT.length, this.nextChar, this);
-				started = true;
-			}
-			show = false;
-		}
-		
         // IRREGULAR PART OF GAME PLAY
         if (this.CUTSCENE)
         {
@@ -178,31 +160,40 @@ Level1.prototype = {
 
                 if( not_in_motion )
                 {
-                    console.log("play the test dialogue stuff hereeeeeeee");
-                    /* SIMON. PLAY THE DIALOGUE HERE
+                    //console.log("play the test dialogue stuff hereeeeeeee");
+					
+					if(lindex === 0)
+					{
+						tempT = dialogue.crush.split("");
+					}
+					if(lindex === 1)
+					{
+						tempT = dialogue.confused.split("");
+					}
+					if(lindex === 2)
+					{
+						tempT = dialogue.firstCrys1.split("");
+					}
+					if(lindex >2)
+					{
+						// WHENEVER THE DIALOGUE FINISHES PLAYING, RUN THESE THREE LINES OF CODE
+						this.door.animations.play("open");
+						this.pedestal.animations.play("off");
 
-
-
-                    play it here
-
-
-
-                    [the dialogue]
-
-
-                    play the dialogue here
-
-
-
-
-                    */
-
-                    // WHENEVER THE DIALOGUE FINISHES PLAYING, RUN THESE THREE LINES OF CODE
-                    this.door.animations.play("open");
-                    this.pedestal.animations.play("off");
-
-                    // wait a few seconds, then
-                    this.state.start("Level_2");
+						// wait a few seconds, then
+						this.state.start("Level_2");
+					}
+					
+                    if(!play)
+					{
+						windex = 0;
+						show = true;
+						play = true;
+					}
+					else
+					{
+						show = false;
+					}
                 }
                 
             }
@@ -321,6 +312,20 @@ Level1.prototype = {
             }
         }
         
+		//Text. turn show on if text is to be displayed
+		if(show)
+		{
+			//console.log("displaying....");
+			this.addtextbox();
+			
+			if(!started)
+			{
+				ended = false;
+				this.time.events.repeat(wordDelay, tempT.length, this.nextChar, this);
+				started = true;
+			}
+			show = false;
+		}
     }
 };
 
@@ -549,35 +554,39 @@ Level1.prototype.SetPlatformsStationary = function () {
 Level1.prototype.addtextbox = function()
 {
 	//console.log(currentText);
-	this.add.sprite(0, 550, "textBox");
+	box = this.add.sprite(0, 550, "textBox");
+	box.inputEnabled = true;
+	box.input.useHandCursor = true;
+	//console.log(this.this);
+	box.events.onInputDown.add(this.removetext, this.this);
+	AT = this.add.text(60, 600, "", style);
 };
 
-Level1.prototype.removetext = function(box)
+Level1.prototype.removetext = function(sprite)
 {
-	//box.destroy();
-	
-};
-
-Level1.prototype.RestartGame = function()
-{
-	levelManager.restart(true, false);
+	//console.log(undefined === sprite);
+	ended = true;
+	started = false;
+	AT.destroy();
+	sprite.destroy();
+	play = false;
+	lindex++;
+	windex = 0;
 };
 
 Level1.prototype.nextChar = function()
 {
-	AT.text = AT.text.concat(tempT[index]);
+	if(!ended)
+	{
+		AT.text = AT.text.concat(tempT[windex]);
+	}
 	//console.log(AT.text);
-	index++;
+	windex++;
 
-	if(index === tempT.length)
+	if(windex === tempT.length)
 	{
 		started = false;
+		ended = true;
 		return;
 	}
-}
-
-Level1.prototype.showhidetext = function()
-{
-	show = !show;
-	//console.log(show);
 }

@@ -41,8 +41,6 @@ var player_can_jump = false;
 //<!--End of basic elements-->
 
 //<!--Variables for dialogue and displaying-->
-var upKey;										//The key for testing text displaying
-var spKey;
 
 var dialogue = jQuery.parseJSON(				//All dialogue text is stored in the JSON file
 	jQuery.ajax({								//JSON.parse() will parse json before ajac call is finished
@@ -57,9 +55,12 @@ var currentText = new Text(game, 200, 600, dialogue.crush);
 var style = {font: "25px assets/8-BIT WONDER.TTF", fill: "#ffffff"};
 var wordDelay = 60;
 var windex = 0;
+var lindex = 0;
 var tempT = [];
 var show = false;
 var started = false;
+var ended = false;
+var play = false;
 var box;
 var AT;			//Text object
 var timer;
