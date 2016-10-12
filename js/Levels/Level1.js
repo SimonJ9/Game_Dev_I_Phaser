@@ -25,7 +25,7 @@ Level1.prototype = {
         this.load.spritesheet("door", "assets/door_1.png", 128, 196);
 
         // load crystal pedastal
-
+        this.load.spritesheet("pedestal", "assets/Crystal Pedestals/Lvl1_OffOn.png", 42, 96);
     },
 
     /* initialization function */
@@ -468,7 +468,7 @@ Level1.prototype.PlaceCutsceneObjects = function (current_y) {
     this.door.animations.play("closed");
     console.log(this.door.toString());
 
-    this.pedestal = this.platforms.create(end_marker + ground.width - game.world.width / 2 + this.door.width, 196 + current_y, "pedastal");
+    this.pedestal = this.platforms.create(end_marker + ground.width - game.world.width / 2 + this.door.width, 196 + current_y, "pedestal");
 
 };
 
