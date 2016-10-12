@@ -7,7 +7,6 @@ GameOver.prototype = {
 
     /* preload function */
     preload: function () {
-        this.load.audio('song', 'assets/music/other_song.mp3');
         this.load.spritesheet("screen", "assets/Game Over/GameOver_SpriteSheet.png", 1334, 750);
 
         this.input.mouse.capture = true;    // track the mouse
@@ -24,13 +23,13 @@ GameOver.prototype = {
         this.screen.animations.add("blink", [1, 1, 1, 1, 0, 0], 5, true);
         this.screen.animations.play("blink");
 
-        main_menu_music = this.add.audio('song');
-        main_menu_music.play();
+        
     },
 
     /* update loop */
     update: function () {
         if (this.input.activePointer.leftButton.isDown) {
+            level_music.stop();
             if(global_current_level === 1)
             {
                 this.state.start("Level_1");

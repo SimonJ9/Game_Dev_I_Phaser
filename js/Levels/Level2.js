@@ -109,8 +109,8 @@ Level2.prototype = {
         this.door;
 
         // music
-        this.music = this.add.audio('other_song');
-        this.music.play();
+        level_music = this.add.audio('other_song');
+        level_music.play();
 
 
 		//Text
@@ -170,6 +170,8 @@ Level2.prototype = {
                     
 					if(lindex === 0)
 					{
+					    this.door.animations.play("open");
+					    this.pedestal.animations.play("off");
 						tempT = dialogue.secondCrys.split("");
 					}
 					if(lindex > 1)
@@ -178,7 +180,8 @@ Level2.prototype = {
 						this.door.animations.play("open");
 						this.pedestal.animations.play("off");
 	
-						// wait a few seconds, then
+					    // wait a few seconds, then
+						global_current_level = 3;
 						this.state.start("Level_3");
 					}
 					
@@ -237,8 +240,9 @@ Level2.prototype = {
             if (player.y >= required_gap_bot) {
                 console.log("Help! I've fallen and I can't get up!");
                 //Level2.Restart(true, false);
-                this.music.stop();
-                this.state.start("Level_2");
+                //level_music.stop();
+                global_current_level = 2;
+                this.state.start("Game Over");
             }
 
 
