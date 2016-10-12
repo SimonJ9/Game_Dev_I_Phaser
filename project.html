@@ -18,7 +18,7 @@
     <script src="js/Levels/Main Menu.js"></script>
     <script src="js/Levels/Intro.js"></script>
     <script src="js/Levels/Game Over.js"></script>
-
+    <script src="js/Levels/Ending.js"></script>
 	<script src = "js/levelmanager.js"></script>
 </head>
 
@@ -78,7 +78,8 @@ game.state.add("Level_3", Level3);
 game.state.add("Menu", MainMenu);
 game.state.add("Intro", Intro);
 game.state.add("Game Over", GameOver);
-game.state.start("Level_2");
+game.state.add("Ending", Ending);
+game.state.start("Ending");
 
 
 

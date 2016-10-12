@@ -1,12 +1,12 @@
 // JavaScript source code
-var Intro = function (game) {
+var Ending = function (game) {
 
 }
-Intro.prototype = {
+Ending.prototype = {
 
     /* preload function */
     preload: function () {
-        this.load.spritesheet("screen", "assets/Scenes/Intro_spritesheet.png", 1334, 750);
+        this.load.spritesheet("screen", "assets/Ending/Ending_spritesheet.png", 1334, 750);
 
         this.input.mouse.capture = true;    // track the mouse
         //Text
@@ -59,6 +59,6 @@ Intro.prototype = {
     }
 };
 
-Intro.prototype.LoadMainMenu = function () {
+Ending.prototype.LoadMainMenu = function () {
     this.state.start("Main Menu");
 };
