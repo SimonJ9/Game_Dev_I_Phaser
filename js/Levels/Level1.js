@@ -19,12 +19,19 @@ Level1.prototype = {
         this.load.image("lv1_layer0", "assets/Background Layers/Layer 0/Lvl_1.png");
         this.load.image("lv1_layer1", "assets/Background Layers/Layer 1/Lvl_1.png");
         this.load.image("lv1_layer2", "assets/Background Layers/Layer 2/Lvl_1.png");
+
+        // load door
+        //this.load.image("door", "assets/door_1.png");
+        this.load.spritesheet("door", "assets/door_1.png", 128, 196);
+
+        // load crystal pedastal
+
     },
 
     /* initialization function */
     create: function () {
         /* input variables for original prototype */
-        var level_time = 10;
+        var level_time = 45;
         var strt_x = 60;
         var strt_y = this.world.height / 2;
        
@@ -95,9 +102,12 @@ Level1.prototype = {
         player.animations.add("skid", [5, 5, 5], 10, true);
         player.animations.play("run");
 
-
+        // cutscene
         this.CUTSCENE = false;
         this.CUTSCENE_INITIALIZED = false;
+
+        // the door
+        this.door;
 
         // music
         var music = this.add.audio('frankenstein');
@@ -114,7 +124,6 @@ Level1.prototype = {
         {
             if (!this.CUTSCENE_INITIALIZED)
             {
-                player.animations.play("skid");
                 this.CUTSCENE_INITIALIZED = true;
                 player.body.velocity.y = 0;
                 player.body.gravity.y = 0;
@@ -122,17 +131,28 @@ Level1.prototype = {
             }
             else
             {
-                console.log(player.x.toString() + "\t" + (game.world.width / 2.0).toString());
-                if (player.x < game.world.width/2.5)
+                var not_in_motion = false;
+                if (this.door.x - player.x <= 400 )
                 {
-                    player.body.velocity.x *= .981;
-                    //console.log(player.body.velocity.x);
+                    if (player.body.velocity.x > 54)
+                    {
+                        player.animations.play("skid");
+                        player.body.velocity.x *= .981;
+                        //console.log(player.x);
+                    }
+                    else {
+                        //console.log("zero'd\t" + player.x.toString());
+                        player.body.velocity.x = 0;
+                        not_in_motion = true;
+                    }
                 }
-                else
+
+                if( not_in_motion )
                 {
-                    console.log("zero'd");
-                    player.body.velocity.x = 0;
+                    console.log("play the test dialogue stuff hereeeeeeee");
+                    this.door.animations.play("open");
                 }
+                
             }
 
         }
@@ -158,10 +178,8 @@ Level1.prototype = {
                     this.stopped = true;
                     this.SetPlatformsStationary();
                     console.log("finished set stationary");
-                    player.body.velocity.x = this.platform_scrolling_speed;
+                    player.body.velocity.x = 500;       // this is the scrolling speed of the original level. Hardcoding it in here is SO important for the skidding animation
                 }
-
-                
 
             }
             else {
@@ -435,7 +453,7 @@ Level1.prototype.PlaceCutsceneObjects = function (current_y) {
     var num = 0;
     var end_marker = this.level_end;
 
-    while( num < 4 )
+    while( num < 7 )
     {
         var ground = this.platforms.create(end_marker, current_y, "lv1_ground_long");
         end_marker += ground.width;
@@ -443,6 +461,12 @@ Level1.prototype.PlaceCutsceneObjects = function (current_y) {
     }
 
     // also put the door down
+    console.log("Placing the door");
+    this.door = this.platforms.create(end_marker + ground.width - game.world.width / 2, -196 + current_y, "door");
+    this.door.animations.add("closed", [0], 10, false);
+    this.door.animations.add("open", [1], 10, false);
+    this.door.animations.play("closed");
+    console.log(this.door.toString());
 
 };
 
