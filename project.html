@@ -56,7 +56,10 @@ var wordDelay = 60;
 var windex = 0;
 var tempT = [];
 var show = false;
+var started = false;
 var box;
+var AT;			//Text object
+var timer;
 
 var game = new Phaser.Game(1334, 750, Phaser.AUTO, "[INSERT GAME NAME HERE]");
 game.state.add("Level_1", Level1);
