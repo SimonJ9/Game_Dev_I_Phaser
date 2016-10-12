@@ -26,6 +26,12 @@ Level1.prototype = {
 
         // load crystal pedastal
 
+		
+		//Text
+		box = this.load.image("textBox", "assets/placeholder/dialogue.png");
+		show = false;
+		//this.load.bitmapFont("8bit_wonder", "assets/8-BIT WONDER.TTF");
+
     },
 
     /* initialization function */
@@ -36,11 +42,13 @@ Level1.prototype = {
         var strt_y = this.world.height / 2;
        
         upKey = this.input.keyboard.addKey(Phaser.Keyboard.UP);		//the key for testing dialogue display
+		upKey.onDown.add(this.showhidetext, this);
+		
         downKey = this.input.keyboard.addKey(Phaser.Keyboard.DOWN);
         spKey = this.input.keyboard.addKey(Phaser.Keyboard.SPACE);
         //spKey.onDown.add(Restartgame, this);
-        upKey.onDown.add(addtext, this);
-        downKey.onDown.add(removetext, this);
+        //upKey.onDown.add(this.addtext, this);
+        //downKey.onDown.add(this.removetext, this);
 
         //alert(dialogue.crush);
 
@@ -113,12 +121,29 @@ Level1.prototype = {
         var music = this.add.audio('frankenstein');
         music.play();
 
-
-    },
+		//Text
+		tempT = dialogue.crush.split('');
+		index = 0;
+		this.addtextbox();
+		AT = this.add.text(60, 600, "", style);
+		this.time.events.repeat(wordDelay, tempT.length, this.nextChar, this);
+	},
 
     /* update loop */
     update: function () {
-
+		//Text
+		if(show)
+		{
+			//console.log("displaying....");
+			//this.addtextbox();
+			//show = false;
+		}
+		else
+		{
+			//this.removetext();
+		}
+		
+		
         // IRREGULAR PART OF GAME PLAY
         if (this.CUTSCENE)
         {
@@ -480,3 +505,38 @@ Level1.prototype.SetPlatformsStationary = function () {
         this.platforms.children[b].body.velocity.x = 0;
     }
 };
+
+Level1.prototype.addtextbox = function()
+{
+	//console.log(currentText);
+	this.add.sprite(0, 550, "textBox");
+};
+
+Level1.prototype.removetext = function(box)
+{
+	box.destroy();
+	
+};
+
+Level1.prototype.RestartGame = function()
+{
+	levelManager.restart(true, false);
+};
+
+Level1.prototype.nextChar = function()
+{
+	AT.text = AT.text.concat(tempT[index]);
+	//console.log(AT.text);
+	index++;
+
+	if(index === tempT.length)
+	{
+		
+	}
+}
+
+Level1.prototype.showhidetext = function()
+{
+	show = !show;
+	//console.log(show);
+}
