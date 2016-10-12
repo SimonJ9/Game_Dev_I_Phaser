@@ -121,14 +121,11 @@ Level1.prototype = {
         this.music = this.add.audio('frankenstein');
         this.music.play();
 
-        //Text
-        
+
+		//Text
+		AT = this.add.text(60, 600, "", style);
 		tempT = dialogue.crush.split('');
 		index = 0;
-		this.addtextbox();
-		AT = this.add.text(60, 600, "", style);
-		this.time.events.repeat(wordDelay, tempT.length, this.nextChar, this);
-        
 	},
 
     /* update loop */
@@ -137,14 +134,15 @@ Level1.prototype = {
 		if(show)
 		{
 			//console.log("displaying....");
-			//this.addtextbox();
-			//show = false;
+			this.addtextbox();
+			if(!started)
+			{
+				AT = this.add.text(60, 600, "", style);
+				timer = this.time.events.repeat(wordDelay, tempT.length, this.nextChar, this);
+				started = true;
+			}
+			show = false;
 		}
-		else
-		{
-			//this.removetext();
-		}
-		
 		
         // IRREGULAR PART OF GAME PLAY
         if (this.CUTSCENE)
@@ -544,7 +542,7 @@ Level1.prototype.addtextbox = function()
 
 Level1.prototype.removetext = function(box)
 {
-	box.destroy();
+	//box.destroy();
 	
 };
 
@@ -561,7 +559,8 @@ Level1.prototype.nextChar = function()
 
 	if(index === tempT.length)
 	{
-		
+		started = false;
+		return;
 	}
 }
 
