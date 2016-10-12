@@ -49,35 +49,19 @@ var dialogue = jQuery.parseJSON(				//All dialogue text is stored in the JSON fi
 	}).responseText
 );
 
-var textDisplaying = false;
 var currentText = new Text(game, 200, 600, dialogue.crush);
-
-
-var levelManager = new Phaser.StateManager(game);
+//<!--For typing effect-->
+var style = {font: "25px assets/8-BIT WONDER.TTF", fill: "#ffffff"};
+var wordDelay = 60;
+var windex = 0;
+var tempT = [];
+var show = false;
+var box;
 
 var game = new Phaser.Game(1334, 750, Phaser.AUTO, "[INSERT GAME NAME HERE]");
 game.state.add("Level_1", Level1);
 game.state.start("Level_1");
 
-
-function addtext(curText)
-{
-	//console.log(currentText);
-	var style = {font: "25px assets/8-BIT WONDER.TTF", fill: "#ffffff"};
-	game.add.sprite(0, 550, "textBox");
-	game.add.text(60, 600, dialogue.crush, style);
-}
-
-function removetext()
-{
-	textBox.destroy();
-	
-}
-
-function RestartGame()
-{
-	levelManager.restart(true, false);
-}
 
 
     </script>
