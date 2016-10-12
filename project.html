@@ -16,6 +16,7 @@
     <script src="js/Levels/Level2.js"></script>
     <script src="js/Levels/Level3.js"></script>
     <script src="js/Levels/Main Menu.js"></script>
+    <script src="js/Levels/Intro.js"></script>
 
 	<script src = "js/levelmanager.js"></script>
 </head>
@@ -66,11 +67,13 @@ var box;
 var AT;			//Text object
 var timer;
 
+var main_menu_music;
 var game = new Phaser.Game(1334, 750, Phaser.AUTO, "[INSERT GAME NAME HERE]");
 game.state.add("Level_1", Level1);
 game.state.add("Level_2", Level2);
 game.state.add("Level_3", Level3);
 game.state.add("Menu", MainMenu);
+game.state.add("Intro", Intro);
 game.state.start("Menu");
 
 

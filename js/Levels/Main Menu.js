@@ -24,16 +24,15 @@ MainMenu.prototype = {
         this.screen.animations.add("blink", [1, 1, 1, 1, 0, 0], 5, true);
         this.screen.animations.play("blink");
 
-        this.music = this.add.audio('song');
-        this.music.play();
+        main_menu_music = this.add.audio('song');
+        main_menu_music.play();
     },
 
     /* update loop */
     update: function () {
         if (this.input.activePointer.leftButton.isDown) 
         {
-            this.music.stop();
-            this.state.start("Level_1");
+            this.state.start("Intro");
         }
 
     }
