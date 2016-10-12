@@ -23,6 +23,7 @@ Intro.prototype = {
         this.load.image("heart","assets/emojis/Heart.png");
         this.load.image("wifi","assets/emojis/NoWifis copy.png");
         this.load.image("irr", "assets/emojis/Irritated.png");
+        this.load.image("message", "assets/emojis/message.png");
         
 
     },
@@ -52,11 +53,13 @@ Intro.prototype = {
         play = false;
         show = false;
 
-        this.timer = this.time.create(false);
-        this.timer.loop(1600, this.playemoji, this.this);
-
         emo = this.add.sprite(0, 0, "heart");
         emo.destroy();
+
+        this.timer = this.time.create(false);
+        this.timer.loop(1600, this.playemoji, this.this);
+        timerStart = false;
+
     },
 
     /* update loop */
@@ -67,7 +70,7 @@ Intro.prototype = {
             /* play dialogue */
             // set this variable to true when finished
             // this.dialogue1_finished = true;
-            
+            //this.add.sprite(720, 70, "heart");
             //Add emojis
             if(!timeStart)
             {
@@ -121,8 +124,10 @@ Intro.prototype = {
             this.screen.animations.play("scene2");
             /* play dialogue */
             // set this variable to true when finished
-            // this.dialogue2_finished = true;
             this.dialogue2_finished = true;
+            
+
+
 
         }
         else if (!this.dialogue3_finished) {
@@ -225,6 +230,7 @@ Intro.prototype.playemoji = function()
 {
     if(emoIndex === 0 )
     {
+        console.log(this);
         //emo = this.add.sprite(720, 70, "heart");
     }
     if(emoIndex === 1)

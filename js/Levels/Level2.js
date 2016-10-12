@@ -172,7 +172,7 @@ Level2.prototype = {
 					{
 						tempT = dialogue.secondCrys.split("");
 					}
-					if(lindex > 1)
+					if(lindex > 0)
 					{
 						// WHENEVER THE DIALOGUE FINISHES PLAYING, RUN THESE THREE LINES OF CODE
 						this.door.animations.play("open");

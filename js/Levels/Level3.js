@@ -174,7 +174,7 @@ Level3.prototype = {
 						tempT = dialogue.thirdCrys.split("");
 					}
 					
-					if(lindex > 1)
+					if(lindex > 0)
 						{
 						// WHENEVER THE DIALOGUE FINISHES PLAYING, RUN THESE THREE LINES OF CODE
 
