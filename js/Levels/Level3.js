@@ -171,7 +171,7 @@ Level3.prototype = {
                     //console.log("play the test dialogue stuff hereeeeeeee");
                     if(lindex === 0)
 					{
-						tempT = dialogue.crush.split("");
+						tempT = dialogue.thirdCrys.split("");
 					}
 					if(lindex === 1)
 					{

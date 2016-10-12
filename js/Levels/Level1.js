@@ -164,22 +164,18 @@ Level1.prototype = {
 					
 					if(lindex === 0)
 					{
-						tempT = dialogue.crush.split("");
+						tempT = dialogue.firstCrys1.split("");
 					}
 					if(lindex === 1)
 					{
-						tempT = dialogue.confused.split("");
+						tempT = dialogue.firstCrys2.split("");
 					}
-					if(lindex === 2)
-					{
-						tempT = dialogue.firstCrys1.split("");
-					}
-					if(lindex >2)
+					if(lindex > 1)
 					{
 						// WHENEVER THE DIALOGUE FINISHES PLAYING, RUN THESE THREE LINES OF CODE
 						this.door.animations.play("open");
 						this.pedestal.animations.play("off");
-
+                        
 						// wait a few seconds, then
 						this.state.start("Level_2");
 					}
