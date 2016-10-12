@@ -110,8 +110,8 @@ Level1.prototype = {
         this.door;
 
         // music
-        this.music = this.add.audio('frankenstein');
-        this.music.play();
+        level_music = this.add.audio('frankenstein');
+        level_music.play();
 
 		//Text
 		box = this.add.sprite(0, 550, "textBox");
@@ -168,13 +168,14 @@ Level1.prototype = {
 					}
 					if(lindex === 1)
 					{
-						tempT = dialogue.firstCrys2.split("");
+					    tempT = dialogue.firstCrys2.split("");
+					    // WHENEVER THE DIALOGUE FINISHES PLAYING, RUN THESE THREE LINES OF CODE
+					    this.door.animations.play("open");
+					    this.pedestal.animations.play("off");
 					}
 					if(lindex > 1)
 					{
-						// WHENEVER THE DIALOGUE FINISHES PLAYING, RUN THESE THREE LINES OF CODE
-						this.door.animations.play("open");
-						this.pedestal.animations.play("off");
+						
                         
 						// wait a few seconds, then
 						this.state.start("Level_2");
