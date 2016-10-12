@@ -574,11 +574,6 @@ Level1.prototype.removetext = function(sprite)
 	windex = 0;
 };
 
-Level1.prototype.RestartGame = function()
-{
-	levelManager.restart(true, false);
-};
-
 Level1.prototype.nextChar = function()
 {
 	if(!ended)
@@ -594,10 +589,4 @@ Level1.prototype.nextChar = function()
 		ended = true;
 		return;
 	}
-}
-
-Level1.prototype.showhidetext = function()
-{
-	show = !show;
-	//console.log(show);
 }
