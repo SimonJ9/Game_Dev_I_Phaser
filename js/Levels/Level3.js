@@ -111,8 +111,8 @@ Level3.prototype = {
         this.door;
 
         // music
-        this.music = this.add.audio('frankenstein');
-        this.music.play();
+        level_music = this.add.audio('frankenstein');
+        level_music.play();
 
 
 		//Text
@@ -175,6 +175,8 @@ Level3.prototype = {
 					}
 					if(lindex === 1)
 					{
+					    this.door.animations.play("open");
+					    this.pedestal.animations.play("off");
 						tempT = dialogue.confused.split("");
 					}
 					if(lindex === 2)
@@ -184,8 +186,6 @@ Level3.prototype = {
 					if(lindex >2)
 						{
 						// WHENEVER THE DIALOGUE FINISHES PLAYING, RUN THESE THREE LINES OF CODE
-						this.door.animations.play("open");
-						this.pedestal.animations.play("off");
 
 						// wait a few seconds, then
 						this.state.start("Level_2");
@@ -246,8 +246,9 @@ Level3.prototype = {
             if (player.y >= required_gap_bot) {
                 console.log("Help! I've fallen and I can't get up!");
                 //Level3.Restart(true, false);
-                this.music.stop();
-                this.state.start("Level_3");
+                //this.music.stop();
+                global_current_level = 3;
+                this.state.start("Game Over");
             }
 
 
