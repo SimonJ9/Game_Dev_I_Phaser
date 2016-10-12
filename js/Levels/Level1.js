@@ -107,7 +107,10 @@ Level1.prototype = {
 
 
         player.animations.add("run", [1, 2, 3, 4, 5, 6, 7], 10, true);
-        player.animations.add("skid", [5, 5, 5], 10, true);
+        player.animations.add("jump", [8, 9, 10, 11], 10, true);
+        player.animations.add("fall", [12, 13, 14, 15], 10, true);
+        player.animations.add("skid", [16, 17, 18, 19], 10, true);
+        player.animations.add("back", [20], 10, false);
         player.animations.play("run");
 
         // cutscene
@@ -232,6 +235,13 @@ Level1.prototype = {
             }
             else {
                 player_can_jump = false;
+                if (player.body.velocity.y < 0) {
+                    player.animations.play("jump");
+                }
+                else
+                {
+                    player.animations.play("fall");
+                }
             }
 
             // restart the level if the player falls below a certain height
