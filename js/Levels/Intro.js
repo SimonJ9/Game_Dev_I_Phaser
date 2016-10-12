@@ -56,10 +56,11 @@ Intro.prototype = {
         emo = this.add.sprite(0, 0, "heart");
         emo.destroy();
 
+        /*
         this.timer = this.time.create(false);
         this.timer.loop(1600, this.playemoji, this.this);
         timerStart = false;
-
+        */
     },
 
     /* update loop */
@@ -72,11 +73,11 @@ Intro.prototype = {
             // this.dialogue1_finished = true;
             //this.add.sprite(720, 70, "heart");
             //Add emojis
-            if(!timeStart)
-            {
-                this.timer.start();
-                timerStart = true;
-            }
+            //if(!timeStart)
+            //{
+            //    this.timer.start();
+             //   timerStart = true;
+            //}
 
             if(lindex === 0)
             {
@@ -125,7 +126,7 @@ Intro.prototype = {
             /* play dialogue */
             // set this variable to true when finished
             this.dialogue2_finished = true;
-            
+            //this.timer
 
 
 
@@ -224,6 +225,12 @@ Intro.prototype.nextChar = function()
         ended = true;
         return;
     }
+}
+
+Intro.protytype.changestate3 = function()
+{
+    this.dialogue2_finished = true;
+
 }
 
 Intro.prototype.playemoji = function()
