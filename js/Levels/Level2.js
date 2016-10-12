@@ -170,8 +170,6 @@ Level2.prototype = {
                     
 					if(lindex === 0)
 					{
-					    this.door.animations.play("open");
-					    this.pedestal.animations.play("off");
 						tempT = dialogue.secondCrys.split("");
 					}
 					if(lindex > 1)
