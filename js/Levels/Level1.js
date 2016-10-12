@@ -124,8 +124,9 @@ Level1.prototype = {
         this.music = this.add.audio('frankenstein');
         this.music.play();
 
-
 		//Text
+		box = this.add.sprite(0, 550, "textBox");
+		box.destroy();
 		AT = this.add.text(60, 600, "", style);
 		tempT = dialogue.crush.split('');
 		index = 0;
@@ -138,6 +139,7 @@ Level1.prototype = {
 		{
 			//console.log("displaying....");
 			this.addtextbox();
+			
 			if(!started)
 			{
 				AT = this.add.text(60, 600, "", style);
@@ -549,12 +551,18 @@ Level1.prototype.SetPlatformsStationary = function () {
 Level1.prototype.addtextbox = function()
 {
 	//console.log(currentText);
-	this.add.sprite(0, 550, "textBox");
+	box = this.add.sprite(0, 550, "textBox");
+	box.inputEnabled = true;
+	box.input.useHandCursor = true;
+	console.log(this.this);
+	box.events.onInputDown.add(this.removetext, this.this);
 };
 
-Level1.prototype.removetext = function(box)
+Level1.prototype.removetext = function(sprite)
 {
-	//box.destroy();
+	//console.log(undefined === sprite);
+	AT.setText("");
+	sprite.destroy();
 	
 };
 
