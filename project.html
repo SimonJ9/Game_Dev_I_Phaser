@@ -66,7 +66,9 @@ var ended = false;
 var play = false;
 var box;
 var AT;			//Text object
-var timer;
+var timeStart = false;
+var emo;
+var emoIndex = 0;
 
 var global_current_level = 1;
 var main_menu_music;
@@ -79,7 +81,7 @@ game.state.add("Menu", MainMenu);
 game.state.add("Intro", Intro);
 game.state.add("Game Over", GameOver);
 game.state.add("Ending", Ending);
-game.state.start("Menu");
+game.state.start("Level_3");
 
 
 

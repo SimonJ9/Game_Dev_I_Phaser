@@ -173,22 +173,15 @@ Level3.prototype = {
 					{
 						tempT = dialogue.thirdCrys.split("");
 					}
-					if(lindex === 1)
-					{
-					    this.door.animations.play("open");
-					    this.pedestal.animations.play("off");
-						tempT = dialogue.confused.split("");
-					}
-					if(lindex === 2)
-					{
-						tempT = dialogue.firstCrys1.split("");
-					}
-					if(lindex >2)
+					
+					if(lindex > 1)
 						{
 						// WHENEVER THE DIALOGUE FINISHES PLAYING, RUN THESE THREE LINES OF CODE
 
+                        this.door.animations.play("open");
+                        this.pedestal.animations.play("off");
 						// wait a few seconds, then
-						this.state.start("Level_2");
+						this.state.start("Ending");
 					}
 					
                     if(!play)
