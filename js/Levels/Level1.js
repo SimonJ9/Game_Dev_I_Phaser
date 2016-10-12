@@ -7,7 +7,7 @@ Level1.prototype = {
     /* preload function */
     preload: function () {
         this.load.audio('frankenstein', 'assets/music/frankenstein.mp3');
-        this.load.spritesheet("player_sprite", "assets/run.png", 96, 144);
+        this.load.spritesheet("player_sprite", "assets/spritesheet.png", 96, 144);
 
         // these are the platforms for lv1
         this.load.image("lv1_ground_short", "assets/All_Platforms/Resized_WholeBlue/Blue_Plat1.png");
@@ -222,6 +222,7 @@ Level1.prototype = {
             // collide the player with the platforms
             if (this.physics.arcade.collide(player, this.platforms))         // if they are colliding, the player will stand still and slide along with the platforms!
             {
+                player.animations.play("run");
                 player_can_jump = true;
                 if (this.layer1.x <= -1 * this.world.width * 4.5 && !this.stopped) {
                     this.CUTSCENE = true;
