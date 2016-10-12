@@ -13,6 +13,9 @@
     <script src="js/LightningSpell.js"></script>
     <script src="js/RandomGeneration.js"></script>
     <script src="js/Levels/Level1.js"></script>
+    <script src="js/Levels/Level2.js"></script>
+    <script src="js/Levels/Level3.js"></script>
+
 	<script src = "js/levelmanager.js"></script>
 </head>
 
@@ -60,7 +63,8 @@ var box;
 
 var game = new Phaser.Game(1334, 750, Phaser.AUTO, "[INSERT GAME NAME HERE]");
 game.state.add("Level_1", Level1);
-game.state.start("Level_1");
+game.state.add("Level_2", Level2);
+game.state.start("Level_2");
 
 
 
