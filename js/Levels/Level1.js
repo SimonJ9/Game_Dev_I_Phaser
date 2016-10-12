@@ -468,6 +468,8 @@ Level1.prototype.PlaceCutsceneObjects = function (current_y) {
     this.door.animations.play("closed");
     console.log(this.door.toString());
 
+    this.pedestal = this.platforms.create(end_marker + ground.width - game.world.width / 2 + this.door.width, 196 + current_y, "pedastal");
+
 };
 
 Level1.prototype.SetPlatformsStationary = function () {
